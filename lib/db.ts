@@ -39,5 +39,28 @@ async function doInit(): Promise<void> {
       count INTEGER NOT NULL,
       first_attempt INTEGER NOT NULL
     )`,
+    `CREATE TABLE IF NOT EXISTS articles (
+      id TEXT PRIMARY KEY, slug TEXT, title TEXT, pattern TEXT, body TEXT,
+      published INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_articles_slug ON articles(slug)`,
+    `CREATE TABLE IF NOT EXISTS problems (
+      id TEXT PRIMARY KEY, slug TEXT, title TEXT, statement TEXT, pattern TEXT,
+      difficulty TEXT NOT NULL DEFAULT 'medium',
+      judging_mode TEXT NOT NULL DEFAULT 'function',
+      function_name TEXT, params TEXT, return_type TEXT, starter_code TEXT,
+      published INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_problems_slug ON problems(slug)`,
+    `CREATE TABLE IF NOT EXISTS problem_tests (
+      id TEXT PRIMARY KEY, problem_id TEXT NOT NULL,
+      ordinal INTEGER NOT NULL DEFAULT 0, kind TEXT NOT NULL DEFAULT 'visible',
+      input TEXT, expected TEXT
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_problem_tests_problem ON problem_tests(problem_id, ordinal)`,
   ]);
 }
