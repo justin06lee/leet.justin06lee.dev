@@ -260,6 +260,13 @@ export async function getProblemBySlug(
   return mapProblemRow(res.rows[0]);
 }
 
+export async function getProblemById(id: string): Promise<Problem | null> {
+  await initDb();
+  const res = await db.execute({ sql: "SELECT * FROM problems WHERE id = ?", args: [id] });
+  if (res.rows.length === 0) return null;
+  return mapProblemRow(res.rows[0]);
+}
+
 export async function listProblems(filters?: {
   pattern?: string;
   tier?: Tier;
