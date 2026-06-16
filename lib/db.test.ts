@@ -24,6 +24,16 @@ describe("initDb", () => {
     expect(tables).toContain("problem_tests");
   });
 
+  it("creates srs_state and reviews tables", async () => {
+    await initDb();
+    const res = await db.execute(
+      "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
+    );
+    const tables = res.rows.map((r) => r.name as string);
+    expect(tables).toContain("srs_state");
+    expect(tables).toContain("reviews");
+  });
+
   it("is idempotent (safe to call twice)", async () => {
     await initDb();
     await initDb();

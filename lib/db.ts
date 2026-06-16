@@ -62,5 +62,19 @@ async function doInit(): Promise<void> {
       input TEXT, expected TEXT
     )`,
     `CREATE INDEX IF NOT EXISTS idx_problem_tests_problem ON problem_tests(problem_id, ordinal)`,
+    `CREATE TABLE IF NOT EXISTS srs_state (
+      user_id TEXT NOT NULL, problem_id TEXT NOT NULL,
+      ease REAL NOT NULL DEFAULT 2.5, interval_days INTEGER NOT NULL DEFAULT 0,
+      due_at TEXT, reps INTEGER NOT NULL DEFAULT 0, lapses INTEGER NOT NULL DEFAULT 0,
+      last_grade INTEGER, updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (user_id, problem_id)
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_srs_due ON srs_state(user_id, due_at)`,
+    `CREATE TABLE IF NOT EXISTS reviews (
+      id TEXT PRIMARY KEY, user_id TEXT NOT NULL, problem_id TEXT NOT NULL,
+      grade INTEGER NOT NULL, reviewed_on TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_reviews_user_day ON reviews(user_id, reviewed_on)`,
   ]);
 }
