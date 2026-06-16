@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@libsql/client": "^0.17.0",
-    "isomorphic-dompurify": "^3.8.0",
     "katex": "^0.16.45",
     "next": "16.2.9",
     "react": "19.2.4",
