@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "seed": "bun run scripts/seed.ts"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",
