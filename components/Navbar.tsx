@@ -9,6 +9,11 @@ export default async function Navbar() {
         <Link href="/" className="font-mono tracking-tight text-foreground">
           leet
         </Link>
+        {user && (
+          <Link href="/dashboard" className="text-muted hover:text-foreground">
+            dashboard
+          </Link>
+        )}
         <Link href="/problems" className="text-muted hover:text-foreground">
           problems
         </Link>
@@ -18,6 +23,11 @@ export default async function Navbar() {
         <Link href="/toolkit" className="text-muted hover:text-foreground">
           toolkit
         </Link>
+        {user && (
+          <Link href="/mastery" className="text-muted hover:text-foreground">
+            mastery
+          </Link>
+        )}
         {user?.tier === "owner" && (
           <Link href="/admin" className="text-muted hover:text-foreground">
             admin
