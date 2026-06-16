@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Markdown from "@/components/Markdown";
 import { getProblemBySlug, getTests } from "@/lib/problems";
 import { getPattern } from "@/lib/toolkit";
+import { PracticePanel } from "@/components/practice/PracticePanel";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,6 @@ export default async function ProblemPage({
   // visible examples only — hidden tests are never fetched on the public page.
   const examples = await getTests(problem.id, { includeHidden: false });
   const pattern = problem.pattern ? getPattern(problem.pattern) : undefined;
-  const languages = Object.keys(problem.starterCode);
 
   return (
     <section className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-24 lowercase">
@@ -54,27 +54,13 @@ export default async function ProblemPage({
         </div>
       )}
 
-      {languages.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <h2 className="font-mono text-xl tracking-tight">starter code</h2>
-          {languages.map((lang) => (
-            <div key={lang} className="flex flex-col gap-1">
-              <span className="text-sm text-muted">{lang}</span>
-              <pre className="overflow-x-auto rounded border border-border bg-surface p-4 font-mono text-sm">
-                {problem.starterCode[lang]}
-              </pre>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <button
-        type="button"
-        disabled
-        className="w-fit cursor-not-allowed rounded border border-border px-4 py-2 text-sm text-muted"
-      >
-        practice (coming soon)
-      </button>
+      <PracticePanel
+        slug={problem.slug}
+        judgingMode={problem.judgingMode}
+        functionName={problem.functionName}
+        starterCode={problem.starterCode}
+        cases={examples.map((t) => ({ input: t.input, expected: t.expected }))}
+      />
     </section>
   );
 }
