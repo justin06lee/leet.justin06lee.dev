@@ -5,9 +5,25 @@ export default async function Navbar() {
   const user = await getCurrentUser();
   return (
     <nav className="flex items-center justify-between border-b border-border px-6 py-4 text-sm lowercase">
-      <Link href="/" className="font-mono tracking-tight text-foreground">
-        leet
-      </Link>
+      <div className="flex items-center gap-4">
+        <Link href="/" className="font-mono tracking-tight text-foreground">
+          leet
+        </Link>
+        <Link href="/problems" className="text-muted hover:text-foreground">
+          problems
+        </Link>
+        <Link href="/articles" className="text-muted hover:text-foreground">
+          articles
+        </Link>
+        <Link href="/toolkit" className="text-muted hover:text-foreground">
+          toolkit
+        </Link>
+        {user?.tier === "owner" && (
+          <Link href="/admin" className="text-muted hover:text-foreground">
+            admin
+          </Link>
+        )}
+      </div>
       <div className="flex items-center gap-4">
         {user ? (
           <>
