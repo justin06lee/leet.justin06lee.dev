@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# leet.justin06lee.dev
+
+A LeetCode-style **mastery course** — a tiered syllabus of data-structure and
+algorithm patterns, with articles, practice problems, and spaced-repetition review.
+See `docs/superpowers/specs/2026-06-15-leet-platform-vision.md` for the full vision
+and build order, and `TOOLKIT.md` for the syllabus.
+
+Built on Next.js 16 (App Router), React 19, Tailwind 4, and Turso/libSQL.
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
+bun run dev      # dev server at http://localhost:3000
+bun run build    # production build
+bun run lint     # eslint
+bun run test     # vitest
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Auth setup (Slice 1)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Authentication is GitHub OAuth with DB-backed sessions.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Register a GitHub OAuth app at https://github.com/settings/developers.
+   - Authorization callback URL (prod): `https://leet.justin06lee.dev/api/auth/github/callback`
+   - For local dev, register a second app/callback: `http://localhost:3000/api/auth/github/callback`
+2. Copy `.env.example` to `.env.local` and fill in:
+   - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` — from the OAuth app
+   - `ADMIN_KEY` — reserved for later admin mutations
+   - `OWNER_GITHUB_LOGIN` — your GitHub login (auto-resolves to the `owner` tier)
+   - `TURSO_DB_URL`, `TURSO_DB_AUTH_TOKEN` — already provisioned for this project
+3. `bun run dev`, open `/`, click "sign in with github".
 
-## Learn More
+### Access tiers
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- New users are `free`. The `OWNER_GITHUB_LOGIN` account resolves to `owner`
+  automatically (derived at read time from the env var — never stored, so it can't
+  be self-assigned and survives DB resets).
+- `paid` is granted manually until billing exists:
+  `UPDATE users SET tier='paid' WHERE github_login='<login>';`
+- `owner`/`paid` unlock paid features in later slices (server code judge, hidden
+  test cases); `free` runs in-browser Python/JS against visible tests.
