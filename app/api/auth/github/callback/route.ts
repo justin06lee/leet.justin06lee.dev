@@ -19,7 +19,9 @@ export async function GET(req: NextRequest) {
   if (!code || !verifyState(cookieState, queryState)) return fail("state");
 
   try {
-    const token = await exchangeCodeForToken(code);
+    // Must match the redirect_uri sent at the authorize step (same derivation).
+    const redirectUri = new URL("/api/auth/github/callback", req.nextUrl.origin).toString();
+    const token = await exchangeCodeForToken(code, redirectUri);
     const profile = await fetchGitHubProfile(token);
     const user = await upsertGitHubUser(profile);
     const sessionId = await createSession(user.id);

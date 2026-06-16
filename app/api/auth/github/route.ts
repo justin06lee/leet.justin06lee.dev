@@ -13,7 +13,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "OAuth not configured" }, { status: 500 });
   }
   const state = generateState();
-  const res = NextResponse.redirect(buildAuthorizeUrl(clientId, state));
+  // Derive the callback from this request's origin so dev (localhost) and prod
+  // each return to their own host. The callback route reconstructs the same URL.
+  const redirectUri = new URL("/api/auth/github/callback", req.nextUrl.origin).toString();
+  const res = NextResponse.redirect(buildAuthorizeUrl(clientId, state, redirectUri));
   res.cookies.set(STATE_COOKIE, state, {
     httpOnly: true,
     sameSite: "lax",

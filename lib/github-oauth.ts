@@ -10,8 +10,16 @@ export function generateState(): string {
   return randomUUID();
 }
 
-export function buildAuthorizeUrl(clientId: string, state: string): string {
-  const params = new URLSearchParams({ client_id: clientId, scope: SCOPE, state });
+// `redirectUri` must be sent here AND match the one sent at token exchange.
+// We derive it from the request origin (see the routes) so localhost and prod
+// each round-trip to their own callback even when the OAuth app registers both.
+export function buildAuthorizeUrl(clientId: string, state: string, redirectUri: string): string {
+  const params = new URLSearchParams({
+    client_id: clientId,
+    scope: SCOPE,
+    state,
+    redirect_uri: redirectUri,
+  });
   return `${AUTHORIZE_URL}?${params.toString()}`;
 }
 
@@ -23,7 +31,8 @@ export function verifyState(
 }
 
 // Exchange the OAuth code for an access token. Throws on failure.
-export async function exchangeCodeForToken(code: string): Promise<string> {
+// `redirectUri` must match the value sent to buildAuthorizeUrl.
+export async function exchangeCodeForToken(code: string, redirectUri: string): Promise<string> {
   const res = await fetch(TOKEN_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
@@ -31,6 +40,7 @@ export async function exchangeCodeForToken(code: string): Promise<string> {
       client_id: process.env.GITHUB_CLIENT_ID,
       client_secret: process.env.GITHUB_CLIENT_SECRET,
       code,
+      redirect_uri: redirectUri,
     }),
   });
   if (!res.ok) throw new Error(`token exchange failed: ${res.status}`);
