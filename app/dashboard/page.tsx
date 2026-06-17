@@ -1,8 +1,10 @@
-import Link from "next/link";
 import { requireUser } from "@/lib/auth-server";
 import { getMastery } from "@/lib/mastery";
 import { buildDailySession } from "@/lib/session";
 import type { Tier } from "@/lib/toolkit";
+import { Button } from "@/components/chrome/button";
+import { Badge } from "@/components/chrome/badge";
+import { Card } from "@/components/chrome/card";
 
 export const dynamic = "force-dynamic";
 
@@ -24,34 +26,33 @@ export default async function Dashboard() {
       </p>
 
       <div className="grid grid-cols-3 gap-3">
-        <div className="rounded border border-border bg-surface px-4 py-3">
+        <Card className="gap-0 p-4">
           <div className="font-mono text-2xl text-foreground">{mastery.dueToday}</div>
           <div className="text-sm text-muted">due today</div>
-        </div>
-        <div className="rounded border border-border bg-surface px-4 py-3">
+        </Card>
+        <Card className="gap-0 p-4">
           <div className="font-mono text-2xl text-foreground">{mastery.streakDays}</div>
           <div className="text-sm text-muted">day streak</div>
-        </div>
-        <div className="rounded border border-border bg-surface px-4 py-3">
+        </Card>
+        <Card className="gap-0 p-4">
           <div className="font-mono text-2xl text-foreground">{mastery.totalReviews}</div>
           <div className="text-sm text-muted">reviews</div>
-        </div>
+        </Card>
       </div>
 
       {hasSession ? (
-        <Link
-          href="/session"
-          className="rounded border border-foreground bg-foreground px-4 py-3 text-center font-mono text-background hover:opacity-90"
-        >
+        <Button variant="solid" fullWidth href="/session" className="font-mono">
           start daily session ({items.length})
-        </Link>
+        </Button>
       ) : (
-        <div className="rounded border border-border bg-surface px-4 py-3 text-center text-muted">
-          <span className="font-mono">nothing due</span> —{" "}
-          <Link href="/problems" className="text-foreground underline underline-offset-4">
-            browse problems
-          </Link>
-        </div>
+        <Card className="items-center gap-0 p-4 text-center text-muted">
+          <span>
+            <span className="font-mono">nothing due</span> —{" "}
+            <Button variant="link" size="sm" href="/problems" className="px-0">
+              browse problems
+            </Button>
+          </span>
+        </Card>
       )}
 
       <div className="flex flex-col gap-3">
@@ -60,9 +61,9 @@ export default async function Dashboard() {
           const t = mastery.tiers[tier];
           const pct = t.problemCount > 0 ? Math.round((t.mastered / t.problemCount) * 100) : 0;
           return (
-            <div key={tier} className="flex flex-col gap-1">
+            <Card key={tier} className="gap-1 p-4">
               <div className="flex items-baseline justify-between text-sm">
-                <span className="text-foreground">{tier}</span>
+                <Badge variant="outline">{tier}</Badge>
                 <span className="text-muted">
                   {t.attempted}/{t.problemCount} attempted, {t.mastered} mastered
                 </span>
@@ -70,21 +71,21 @@ export default async function Dashboard() {
               <div className="h-1.5 w-full overflow-hidden rounded border border-border bg-surface-alt">
                 <div className="h-full bg-foreground" style={{ width: `${pct}%` }} />
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>
 
-      <nav className="flex flex-wrap gap-4 text-sm text-muted">
-        <Link href="/mastery" className="hover:text-foreground underline underline-offset-4">
+      <nav className="flex flex-wrap gap-2 text-sm">
+        <Button variant="link" size="sm" href="/mastery" className="px-0">
           mastery
-        </Link>
-        <Link href="/problems" className="hover:text-foreground underline underline-offset-4">
+        </Button>
+        <Button variant="link" size="sm" href="/problems" className="px-0">
           problems
-        </Link>
-        <Link href="/toolkit" className="hover:text-foreground underline underline-offset-4">
+        </Button>
+        <Button variant="link" size="sm" href="/toolkit" className="px-0">
           toolkit
-        </Link>
+        </Button>
       </nav>
     </section>
   );

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import Markdown from "@/components/Markdown";
+import { Prose } from "@/components/chrome/prose";
+import { Button } from "@/components/chrome/button";
+import { Badge } from "@/components/chrome/badge";
+import { Card } from "@/components/chrome/card";
 import { PracticePanel } from "@/components/practice/PracticePanel";
 import { recordReviewAction } from "@/app/dashboard/actions";
 
@@ -50,25 +52,27 @@ export function SessionRunner({ items }: { items: SessionRunnerItem[] }) {
     return (
       <section className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-24 lowercase">
         <h1 className="font-mono text-2xl tracking-tight">done for now</h1>
-        <p className="text-muted">come back tomorrow.</p>
-        <p className="text-foreground">{grades.length} items graded</p>
-        {breakdown.length > 0 && (
-          <ul className="flex flex-col gap-1 text-sm">
-            {breakdown.map((b) => (
-              <li key={b.label} className="text-muted">
-                {b.label}: <span className="text-foreground">{b.count}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-        <div className="flex gap-4">
-          <Link href="/dashboard" className="text-sm text-foreground underline hover:no-underline">
-            dashboard
-          </Link>
-          <Link href="/mastery" className="text-sm text-foreground underline hover:no-underline">
-            mastery
-          </Link>
-        </div>
+        <Card>
+          <p className="text-muted">come back tomorrow.</p>
+          <p className="text-foreground">{grades.length} items graded</p>
+          {breakdown.length > 0 && (
+            <ul className="flex flex-col gap-1 text-sm">
+              {breakdown.map((b) => (
+                <li key={b.label} className="text-muted">
+                  {b.label}: <span className="text-foreground">{b.count}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flex gap-2">
+            <Button variant="link" size="sm" href="/dashboard">
+              dashboard
+            </Button>
+            <Button variant="link" size="sm" href="/mastery">
+              mastery
+            </Button>
+          </div>
+        </Card>
       </section>
     );
   }
@@ -111,21 +115,21 @@ export function SessionRunner({ items }: { items: SessionRunnerItem[] }) {
         <span className="font-mono">
           case {index + 1} / {items.length}
         </span>
-        <span>{item.kind}</span>
+        <Badge variant="outline">{item.kind}</Badge>
       </div>
 
       <div className="flex flex-col gap-2">
         <h1 className="font-mono text-2xl tracking-tight">{item.title}</h1>
         {showPattern ? (
-          <p className="text-sm text-muted">
-            pattern: <span className="text-foreground">{item.patternLabel ?? "—"}</span>
-          </p>
+          <span className="flex items-center gap-2 text-sm text-muted">
+            pattern: <Badge variant="outline">{item.patternLabel ?? "—"}</Badge>
+          </span>
         ) : (
           <p className="text-sm text-muted">pattern: hidden</p>
         )}
       </div>
 
-      <Markdown content={item.statement} />
+      <Prose>{item.statement}</Prose>
 
       <PracticePanel
         key={item.id}
@@ -140,15 +144,15 @@ export function SessionRunner({ items }: { items: SessionRunnerItem[] }) {
         <span className="text-sm text-muted">how did that go?</span>
         <div className="flex flex-wrap gap-2">
           {GRADES.map((g) => (
-            <button
+            <Button
               key={g.grade}
-              type="button"
+              variant="outline"
+              size="sm"
               onClick={() => grade(g.grade)}
               disabled={pending || graded}
-              className="rounded border border-border px-4 py-2 text-sm text-foreground hover:border-foreground disabled:cursor-not-allowed disabled:text-muted"
             >
               {g.label}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -160,13 +164,9 @@ export function SessionRunner({ items }: { items: SessionRunnerItem[] }) {
               graded <span className="text-foreground">{gradeLabel(grades[grades.length - 1])}</span> ·
               next due <span className="text-foreground">{dueAtISO}</span>
             </span>
-            <button
-              type="button"
-              onClick={next}
-              className="rounded border border-border px-4 py-2 text-sm text-foreground hover:border-foreground"
-            >
+            <Button variant="solid" size="sm" onClick={next}>
               {index + 1 < items.length ? "next" : "finish"}
-            </button>
+            </Button>
           </div>
         )}
       </div>
