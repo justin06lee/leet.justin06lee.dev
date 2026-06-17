@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
           // Untrusted user code already executes only inside the sandboxed Worker.
           key: "Content-Security-Policy",
           value:
-            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://avatars.githubusercontent.com; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net; frame-ancestors 'none';",
+            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://avatars.githubusercontent.com; font-src 'self' https://cdn.jsdelivr.net; worker-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net; frame-ancestors 'none';",
         },
         { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
       ],

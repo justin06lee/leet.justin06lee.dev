@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { Card, CardHeader, CardTitle, CardMeta } from "@/components/chrome/card";
+import { Badge } from "@/components/chrome/badge";
 import { listArticles } from "@/lib/articles";
 import { getPattern } from "@/lib/toolkit";
 
@@ -18,13 +19,18 @@ export default async function ArticlesPage() {
             const pattern = article.pattern ? getPattern(article.pattern) : undefined;
             return (
               <li key={article.id}>
-                <Link
-                  href={`/articles/${article.slug}`}
-                  className="flex items-center justify-between rounded border border-border bg-surface px-4 py-3 hover:border-foreground"
-                >
-                  <span className="text-foreground">{article.title}</span>
-                  {pattern && <span className="text-muted text-sm">{pattern.label}</span>}
-                </Link>
+                <Card>
+                  <CardHeader>
+                    <CardTitle href={`/articles/${article.slug}`}>
+                      {article.title}
+                    </CardTitle>
+                    {pattern && (
+                      <CardMeta>
+                        <Badge>{pattern.label}</Badge>
+                      </CardMeta>
+                    )}
+                  </CardHeader>
+                </Card>
               </li>
             );
           })}

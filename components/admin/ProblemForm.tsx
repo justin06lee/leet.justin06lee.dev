@@ -11,16 +11,24 @@ import {
 } from "@/app/admin/actions";
 import type { Problem, ProblemParam, ProblemTest, Difficulty, JudgingMode } from "@/lib/problems";
 import TestCaseEditor, { type TestCase } from "./TestCaseEditor";
+import { Input } from "@/components/chrome/input";
+import { Textarea } from "@/components/chrome/textarea";
+import Select from "@/components/chrome/select";
+import { Button } from "@/components/chrome/button";
 
-const FIELD =
-  "rounded border border-border bg-surface px-2 py-1 text-sm text-foreground lowercase";
-const BUTTON =
-  "rounded border border-border bg-surface px-3 py-1 text-sm text-foreground lowercase hover:border-foreground disabled:opacity-50";
-const SMALL_BUTTON =
-  "rounded border border-border bg-surface px-2 py-1 text-xs text-foreground lowercase hover:border-foreground disabled:opacity-50";
-
-const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];
-const JUDGING_MODES: JudgingMode[] = ["function", "stdio"];
+const PATTERN_OPTIONS = [
+  { value: "", label: "— none —" },
+  ...PATTERNS.map((p) => ({ value: p.key, label: p.label })),
+];
+const DIFFICULTY_OPTIONS: { value: Difficulty; label: string }[] = [
+  { value: "easy", label: "easy" },
+  { value: "medium", label: "medium" },
+  { value: "hard", label: "hard" },
+];
+const JUDGING_MODE_OPTIONS: { value: JudgingMode; label: string }[] = [
+  { value: "function", label: "function" },
+  { value: "stdio", label: "stdio" },
+];
 
 export default function ProblemForm({
   initial,
@@ -105,141 +113,128 @@ export default function ProblemForm({
   return (
     <form onSubmit={onSubmit} className="flex max-w-2xl flex-col gap-4 lowercase">
       {error && (
-        <p className="rounded border border-border bg-surface px-3 py-2 text-sm text-foreground">
-          {error}
-        </p>
+        <p className="border border-white/20 px-3 py-2 text-sm text-white">{error}</p>
       )}
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm text-muted">title</span>
-        <input className={FIELD} value={title} onChange={(e) => setTitle(e.target.value)} />
+        <span className="text-sm text-white/60">title</span>
+        <Input value={title} onChange={(e) => setTitle(e.target.value)} />
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm text-muted">statement</span>
-        <textarea
-          className={`${FIELD} min-h-40 font-mono normal-case`}
+        <span className="text-sm text-white/60">statement</span>
+        <Textarea
+          className="min-h-40 font-mono normal-case"
           value={statement}
           onChange={(e) => setStatement(e.target.value)}
         />
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm text-muted">pattern</span>
-        <select className={FIELD} value={pattern} onChange={(e) => setPattern(e.target.value)}>
-          <option value="">none</option>
-          {PATTERNS.map((p) => (
-            <option key={p.key} value={p.key}>
-              {p.label}
-            </option>
-          ))}
-        </select>
+        <span className="text-sm text-white/60">pattern</span>
+        <Select
+          value={pattern}
+          onChange={(v) => setPattern(v)}
+          options={PATTERN_OPTIONS}
+          ariaLabel="pattern"
+        />
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm text-muted">difficulty</span>
-        <select
-          className={FIELD}
+        <span className="text-sm text-white/60">difficulty</span>
+        <Select
           value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-        >
-          {DIFFICULTIES.map((d) => (
-            <option key={d} value={d}>
-              {d}
-            </option>
-          ))}
-        </select>
+          onChange={(v) => setDifficulty(v)}
+          options={DIFFICULTY_OPTIONS}
+          ariaLabel="difficulty"
+        />
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm text-muted">judging mode</span>
-        <select
-          className={FIELD}
+        <span className="text-sm text-white/60">judging mode</span>
+        <Select
           value={judgingMode}
-          onChange={(e) => setJudgingMode(e.target.value as JudgingMode)}
-        >
-          {JUDGING_MODES.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
+          onChange={(v) => setJudgingMode(v)}
+          options={JUDGING_MODE_OPTIONS}
+          ariaLabel="judging mode"
+        />
       </label>
 
       {judgingMode === "function" && (
         <>
           <label className="flex flex-col gap-1">
-            <span className="text-sm text-muted">function name</span>
-            <input
-              className={`${FIELD} font-mono normal-case`}
+            <span className="text-sm text-white/60">function name</span>
+            <Input
+              className="font-mono normal-case"
               value={functionName}
               onChange={(e) => setFunctionName(e.target.value)}
             />
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-sm text-muted">return type</span>
-            <input
-              className={`${FIELD} font-mono normal-case`}
+            <span className="text-sm text-white/60">return type</span>
+            <Input
+              className="font-mono normal-case"
               value={returnType}
               onChange={(e) => setReturnType(e.target.value)}
             />
           </label>
 
           <div className="flex flex-col gap-2">
-            <span className="text-sm text-muted">params</span>
+            <span className="text-sm text-white/60">params</span>
             {params.map((p, i) => (
               <div key={i} className="flex items-center gap-2">
-                <input
-                  className={`${FIELD} font-mono normal-case`}
+                <Input
+                  className="font-mono normal-case"
                   placeholder="name"
                   value={p.name}
                   onChange={(e) => updateParam(i, { name: e.target.value })}
                 />
-                <input
-                  className={`${FIELD} font-mono normal-case`}
+                <Input
+                  className="font-mono normal-case"
                   placeholder="type"
                   value={p.type}
                   onChange={(e) => updateParam(i, { type: e.target.value })}
                 />
-                <button type="button" className={SMALL_BUTTON} onClick={() => removeParam(i)}>
+                <Button type="button" variant="outline" size="sm" onClick={() => removeParam(i)}>
                   remove
-                </button>
+                </Button>
               </div>
             ))}
-            <button type="button" className={SMALL_BUTTON} onClick={addParam}>
+            <Button type="button" variant="dashed" size="sm" onClick={addParam}>
               add param
-            </button>
+            </Button>
           </div>
         </>
       )}
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm text-muted">starter code — python</span>
-        <textarea
-          className={`${FIELD} min-h-32 font-mono normal-case`}
+        <span className="text-sm text-white/60">starter code — python</span>
+        <Textarea
+          className="min-h-32 font-mono normal-case"
           value={python}
           onChange={(e) => setPython(e.target.value)}
         />
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm text-muted">starter code — javascript</span>
-        <textarea
-          className={`${FIELD} min-h-32 font-mono normal-case`}
+        <span className="text-sm text-white/60">starter code — javascript</span>
+        <Textarea
+          className="min-h-32 font-mono normal-case"
           value={javascript}
           onChange={(e) => setJavascript(e.target.value)}
         />
       </label>
 
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-muted">test cases</span>
+        <span className="text-sm text-white/60">test cases</span>
         <TestCaseEditor initial={initialTests} onChange={setTests} />
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-muted">
+      <label className="flex items-center gap-2 text-sm text-white/60">
         <input
           type="checkbox"
+          className="accent-white"
           checked={published}
           onChange={(e) => setPublished(e.target.checked)}
         />
@@ -247,13 +242,13 @@ export default function ProblemForm({
       </label>
 
       <div className="flex items-center gap-2">
-        <button type="submit" className={BUTTON} disabled={isPending}>
+        <Button type="submit" variant="solid" disabled={isPending}>
           {isPending ? "saving…" : "save"}
-        </button>
+        </Button>
         {initial?.id && (
-          <button type="button" className={BUTTON} disabled={isPending} onClick={onDelete}>
+          <Button type="button" variant="outline" disabled={isPending} onClick={onDelete}>
             delete
-          </button>
+          </Button>
         )}
       </div>
     </form>

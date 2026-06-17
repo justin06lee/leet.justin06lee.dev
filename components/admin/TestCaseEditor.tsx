@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import type { ProblemTest } from "@/lib/problems";
+import { Textarea } from "@/components/chrome/textarea";
+import Select from "@/components/chrome/select";
+import { Button } from "@/components/chrome/button";
 
 export interface TestCase {
   kind: "visible" | "hidden";
@@ -9,10 +12,10 @@ export interface TestCase {
   expected: string;
 }
 
-const FIELD =
-  "rounded border border-border bg-surface px-2 py-1 text-sm text-foreground";
-const BUTTON =
-  "rounded border border-border bg-surface px-2 py-1 text-xs text-foreground lowercase hover:border-foreground disabled:opacity-50";
+const KIND_OPTIONS: { value: TestCase["kind"]; label: string }[] = [
+  { value: "visible", label: "visible" },
+  { value: "hidden", label: "hidden" },
+];
 
 function toTestCase(t: Pick<ProblemTest, "kind" | "input" | "expected">): TestCase {
   return { kind: t.kind, input: t.input, expected: t.expected };
@@ -54,52 +57,53 @@ export default function TestCaseEditor({
 
   return (
     <div className="flex flex-col gap-3 lowercase">
-      <p className="text-xs text-muted">
+      <p className="text-xs text-white/60">
         function mode: input = json args array, expected = json value · stdio mode: input = stdin
         text, expected = stdout text
       </p>
 
       {tests.map((t, i) => (
-        <div key={i} className="flex flex-col gap-2 rounded border border-border bg-surface p-3">
+        <div key={i} className="flex flex-col gap-2 border border-white/10 p-3">
           <div className="flex items-center gap-2">
-            <select
-              className={FIELD}
+            <Select
               value={t.kind}
-              onChange={(e) => update(i, { kind: e.target.value as TestCase["kind"] })}
-            >
-              <option value="visible">visible</option>
-              <option value="hidden">hidden</option>
-            </select>
-            <span className="text-xs text-muted">#{i + 1}</span>
+              onChange={(v) => update(i, { kind: v })}
+              options={KIND_OPTIONS}
+              size="compact"
+              ariaLabel="test kind"
+              className="w-28"
+            />
+            <span className="text-xs text-white/60">#{i + 1}</span>
             <div className="ml-auto flex items-center gap-1">
-              <button type="button" className={BUTTON} onClick={() => move(i, -1)} disabled={i === 0}>
+              <Button type="button" variant="outline" size="sm" onClick={() => move(i, -1)} disabled={i === 0}>
                 up
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className={BUTTON}
+                variant="outline"
+                size="sm"
                 onClick={() => move(i, 1)}
                 disabled={i === tests.length - 1}
               >
                 down
-              </button>
-              <button type="button" className={BUTTON} onClick={() => remove(i)}>
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => remove(i)}>
                 remove
-              </button>
+              </Button>
             </div>
           </div>
           <label className="flex flex-col gap-1">
-            <span className="text-xs text-muted">input</span>
-            <textarea
-              className={`${FIELD} min-h-16 font-mono`}
+            <span className="text-xs text-white/60">input</span>
+            <Textarea
+              className="min-h-16 font-mono"
               value={t.input}
               onChange={(e) => update(i, { input: e.target.value })}
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-xs text-muted">expected</span>
-            <textarea
-              className={`${FIELD} min-h-16 font-mono`}
+            <span className="text-xs text-white/60">expected</span>
+            <Textarea
+              className="min-h-16 font-mono"
               value={t.expected}
               onChange={(e) => update(i, { expected: e.target.value })}
             />
@@ -107,9 +111,9 @@ export default function TestCaseEditor({
         </div>
       ))}
 
-      <button type="button" className={BUTTON} onClick={add}>
+      <Button type="button" variant="dashed" size="sm" onClick={add}>
         add test case
-      </button>
+      </Button>
     </div>
   );
 }

@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { requireOwner } from "@/lib/auth-server";
 import { listArticles } from "@/lib/articles";
 import { listProblems } from "@/lib/problems";
+import { Card } from "@/components/chrome/card";
+import { Button } from "@/components/chrome/button";
 
 export const dynamic = "force-dynamic";
 
@@ -20,27 +21,31 @@ export default async function AdminDashboard() {
 
   return (
     <section className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-24 lowercase">
-      <h1 className="text-lg text-foreground">admin</h1>
+      <h1 className="text-lg text-white">admin</h1>
 
-      <Link
-        href="/admin/problems"
-        className="rounded border border-border bg-surface p-6 hover:border-foreground"
-      >
-        <p className="text-foreground">problems</p>
-        <p className="text-sm text-muted">
+      <Card>
+        <p className="text-white">problems</p>
+        <p className="text-sm text-white/60">
           {problemsPublished} published · {problemsDraft} draft
         </p>
-      </Link>
+        <div className="mt-1">
+          <Button variant="link" href="/admin/problems">
+            manage problems
+          </Button>
+        </div>
+      </Card>
 
-      <Link
-        href="/admin/articles"
-        className="rounded border border-border bg-surface p-6 hover:border-foreground"
-      >
-        <p className="text-foreground">articles</p>
-        <p className="text-sm text-muted">
+      <Card>
+        <p className="text-white">articles</p>
+        <p className="text-sm text-white/60">
           {articlesPublished} published · {articlesDraft} draft
         </p>
-      </Link>
+        <div className="mt-1">
+          <Button variant="link" href="/admin/articles">
+            manage articles
+          </Button>
+        </div>
+      </Card>
     </section>
   );
 }

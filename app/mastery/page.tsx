@@ -1,7 +1,9 @@
-import Link from "next/link";
 import { requireUser } from "@/lib/auth-server";
 import { getMastery, type PatternMastery } from "@/lib/mastery";
 import type { Tier, PatternKind } from "@/lib/toolkit";
+import { Button } from "@/components/chrome/button";
+import { Badge } from "@/components/chrome/badge";
+import { Card } from "@/components/chrome/card";
 
 export const dynamic = "force-dynamic";
 
@@ -37,38 +39,35 @@ export default async function Mastery() {
       <header className="flex flex-col gap-4">
         <div className="flex items-baseline justify-between">
           <h1 className="font-mono text-lg text-foreground">mastery</h1>
-          <Link
-            href="/dashboard"
-            className="text-sm text-muted underline underline-offset-4 hover:text-foreground"
-          >
+          <Button variant="link" size="sm" href="/dashboard" className="px-0">
             back to dashboard
-          </Link>
+          </Button>
         </div>
         <p className="text-sm text-muted">
           your full syllabus progress against the toolkit.
         </p>
 
         <div className="grid grid-cols-3 gap-3">
-          <div className="rounded border border-border bg-surface px-4 py-3">
+          <Card className="gap-0 p-4">
             <div className="font-mono text-2xl text-foreground">{mastery.totalReviews}</div>
             <div className="text-sm text-muted">reviews</div>
-          </div>
-          <div className="rounded border border-border bg-surface px-4 py-3">
+          </Card>
+          <Card className="gap-0 p-4">
             <div className="font-mono text-2xl text-foreground">{mastery.streakDays}</div>
             <div className="text-sm text-muted">day streak</div>
-          </div>
-          <div className="rounded border border-border bg-surface px-4 py-3">
+          </Card>
+          <Card className="gap-0 p-4">
             <div className="font-mono text-2xl text-foreground">{mastery.dueToday}</div>
             <div className="text-sm text-muted">due today</div>
-          </div>
+          </Card>
         </div>
 
-        <div className="rounded border border-border bg-surface px-4 py-3 text-sm text-muted">
+        <Card className="gap-0 p-4 text-sm text-muted">
           overall:{" "}
           <span className="text-foreground">{totals.attempted}</span>/{totals.problemCount}{" "}
           attempted · <span className="text-foreground">{totals.mastered}</span> mastered (
           {pct(totals.mastered, totals.problemCount)}%)
-        </div>
+        </Card>
       </header>
 
       <div className="flex flex-col gap-3">
@@ -76,9 +75,9 @@ export default async function Mastery() {
         {TIERS.map((tier) => {
           const t = mastery.tiers[tier];
           return (
-            <div key={tier} className="flex flex-col gap-1">
+            <Card key={tier} className="gap-1 p-4">
               <div className="flex items-baseline justify-between text-sm">
-                <span className="text-foreground">{tier}</span>
+                <Badge variant="outline">{tier}</Badge>
                 <span className="text-muted">
                   {t.patterns} patterns · {t.attempted}/{t.problemCount} attempted ·{" "}
                   {t.mastered} mastered
@@ -90,7 +89,7 @@ export default async function Mastery() {
                   style={{ width: `${pct(t.mastered, t.problemCount)}%` }}
                 />
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>
@@ -106,9 +105,9 @@ export default async function Mastery() {
                 if (rows.length === 0) return null;
                 return (
                   <div key={tier} className="flex flex-col gap-1">
-                    <h3 className="font-mono text-xs uppercase tracking-wide text-muted">
-                      {tier}
-                    </h3>
+                    <div>
+                      <Badge variant="outline">{tier}</Badge>
+                    </div>
                     <table className="w-full border-collapse text-sm">
                       <thead>
                         <tr className="text-left text-xs text-muted">

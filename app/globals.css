@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* @chrome:theme — house font for the @justin06lee/chrome design system.
+   Falls back to Geist sans (bundled via next/font) if the CDN is blocked. */
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/fontsource/fonts/poppins@latest/latin-400-normal.woff2")
+    format("woff2");
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -8,11 +19,12 @@
   --color-border: var(--border);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Poppins", var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-:root {
+:root,
+.dark {
   --background: #000000;
   --foreground: #ffffff;
   --surface: #0a0a0a;
@@ -20,10 +32,12 @@
   --border: rgba(255, 255, 255, 0.12);
   --muted: rgba(255, 255, 255, 0.6);
   --accent: #ffffff;
+  --sticky-header-offset: 56px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
+/* @chrome:end */

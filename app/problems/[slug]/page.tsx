@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
-import Markdown from "@/components/Markdown";
+import { Prose } from "@/components/chrome/prose";
+import { Card } from "@/components/chrome/card";
+import { Badge } from "@/components/chrome/badge";
 import { getProblemBySlug, getTests } from "@/lib/problems";
 import { getPattern } from "@/lib/toolkit";
 import { PracticePanel } from "@/components/practice/PracticePanel";
 
 export const dynamic = "force-dynamic";
-
-const BADGE = "rounded border border-border px-2 py-0.5 text-sm text-muted";
 
 export default async function ProblemPage({
   params,
@@ -26,30 +26,30 @@ export default async function ProblemPage({
       <header className="flex flex-col gap-3">
         <h1 className="font-mono text-3xl tracking-tight">{problem.title}</h1>
         <div className="flex flex-wrap items-center gap-2">
-          {pattern && <span className={BADGE}>{pattern.label}</span>}
-          <span className={BADGE}>{problem.difficulty}</span>
-          <span className={BADGE}>{problem.judgingMode}</span>
+          {pattern && <Badge>{pattern.label}</Badge>}
+          <Badge>{problem.difficulty}</Badge>
+          <Badge>{problem.judgingMode}</Badge>
         </div>
       </header>
 
-      <Markdown content={problem.statement} />
+      <Prose>{problem.statement}</Prose>
 
       {examples.length > 0 && (
         <div className="flex flex-col gap-3">
           <h2 className="font-mono text-xl tracking-tight">examples</h2>
           {examples.map((example) => (
-            <div key={example.id} className="flex flex-col gap-2">
-              <pre className="overflow-x-auto rounded border border-border bg-surface p-4 font-mono text-sm">
+            <Card key={example.id}>
+              <pre className="overflow-x-auto font-mono text-sm">
                 <span className="text-muted">input</span>
                 {"\n"}
                 {example.input}
               </pre>
-              <pre className="overflow-x-auto rounded border border-border bg-surface p-4 font-mono text-sm">
+              <pre className="overflow-x-auto font-mono text-sm">
                 <span className="text-muted">expected</span>
                 {"\n"}
                 {example.expected}
               </pre>
-            </div>
+            </Card>
           ))}
         </div>
       )}

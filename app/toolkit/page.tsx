@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { Card } from "@/components/chrome/card";
+import { Badge } from "@/components/chrome/badge";
+import { Button } from "@/components/chrome/button";
 import { listArticles, type Article } from "@/lib/articles";
 import { listProblems, type Problem } from "@/lib/problems";
 import { PATTERNS, type PatternKind, type Tier } from "@/lib/toolkit";
@@ -39,49 +42,52 @@ export default async function ToolkitPage() {
 
       {KINDS.map((kind) => (
         <div key={kind.key} className="flex flex-col gap-8">
-          <h2 className="font-mono text-2xl tracking-tight">{kind.label}</h2>
+          <h2 className="flex items-center gap-2 font-mono text-2xl tracking-tight">
+            {kind.label}
+            <Badge variant="ghost">{kind.key}</Badge>
+          </h2>
           {TIERS.map((tier) => {
             const patterns = PATTERNS.filter((p) => p.kind === kind.key && p.tier === tier);
             if (patterns.length === 0) return null;
             return (
               <div key={tier} className="flex flex-col gap-4">
-                <h3 className="text-sm uppercase tracking-widest text-muted">{tier}</h3>
+                <div>
+                  <Badge variant="outline">{tier}</Badge>
+                </div>
                 <ul className="flex flex-col gap-4">
                   {patterns.map((pattern) => {
                     const article = articleByPattern.get(pattern.key);
                     const patternProblems = problemsByPattern.get(pattern.key) ?? [];
                     const hasContent = Boolean(article) || patternProblems.length > 0;
                     return (
-                      <li
-                        key={pattern.key}
-                        className={`flex flex-col gap-1 ${hasContent ? "" : "text-muted"}`}
-                      >
-                        <span className={hasContent ? "text-foreground" : ""}>
-                          {article ? (
-                            <Link
-                              href={`/articles/${article.slug}`}
-                              className="underline underline-offset-4 hover:text-muted"
-                            >
-                              {pattern.label}
-                            </Link>
-                          ) : (
-                            pattern.label
+                      <li key={pattern.key}>
+                        <Card className={hasContent ? "" : "text-muted"}>
+                          <div>
+                            {article ? (
+                              <Button variant="link" href={`/articles/${article.slug}`}>
+                                {pattern.label}
+                              </Button>
+                            ) : (
+                              <span className={hasContent ? "text-foreground" : ""}>
+                                {pattern.label}
+                              </span>
+                            )}
+                          </div>
+                          {patternProblems.length > 0 && (
+                            <ul className="flex flex-col gap-0.5 pl-4 text-sm">
+                              {patternProblems.map((problem) => (
+                                <li key={problem.id}>
+                                  <Link
+                                    href={`/problems/${problem.slug}`}
+                                    className="text-muted underline underline-offset-4 hover:text-foreground"
+                                  >
+                                    {problem.title}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
                           )}
-                        </span>
-                        {patternProblems.length > 0 && (
-                          <ul className="flex flex-col gap-0.5 pl-4 text-sm">
-                            {patternProblems.map((problem) => (
-                              <li key={problem.id}>
-                                <Link
-                                  href={`/problems/${problem.slug}`}
-                                  className="text-muted underline underline-offset-4 hover:text-foreground"
-                                >
-                                  {problem.title}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
+                        </Card>
                       </li>
                     );
                   })}

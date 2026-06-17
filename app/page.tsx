@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth-server";
+import { Button } from "@/components/chrome/button";
 
 export const dynamic = "force-dynamic";
 
@@ -14,13 +14,13 @@ export default async function Home() {
         know what to practice and where to stop.
       </p>
       {user ? (
-        <Link href="/dashboard" className="text-foreground underline underline-offset-4">
+        <Button variant="link" href="/dashboard">
           go to your dashboard →
-        </Link>
+        </Button>
       ) : (
-        <Link href="/api/auth/github" className="text-foreground underline underline-offset-4">
+        <Button variant="link" href="/api/auth/github">
           sign in with github to start →
-        </Link>
+        </Button>
       )}
     </section>
   );

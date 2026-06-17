@@ -1,57 +1,46 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth-server";
+import { Navbar as ChromeNavbar, type NavLink } from "@/components/chrome/navbar";
+import { Button } from "@/components/chrome/button";
 
 export default async function Navbar() {
   const user = await getCurrentUser();
-  return (
-    <nav className="flex items-center justify-between border-b border-border px-6 py-4 text-sm lowercase">
-      <div className="flex items-center gap-4">
-        <Link href="/" className="font-mono tracking-tight text-foreground">
-          leet
-        </Link>
-        {user && (
-          <Link href="/dashboard" className="text-muted hover:text-foreground">
-            dashboard
-          </Link>
-        )}
-        <Link href="/problems" className="text-muted hover:text-foreground">
-          problems
-        </Link>
-        <Link href="/articles" className="text-muted hover:text-foreground">
-          articles
-        </Link>
-        <Link href="/toolkit" className="text-muted hover:text-foreground">
-          toolkit
-        </Link>
-        {user && (
-          <Link href="/mastery" className="text-muted hover:text-foreground">
-            mastery
-          </Link>
-        )}
-        {user?.tier === "owner" && (
-          <Link href="/admin" className="text-muted hover:text-foreground">
-            admin
-          </Link>
-        )}
-      </div>
-      <div className="flex items-center gap-4">
-        {user ? (
-          <>
-            <span className="text-muted">
-              {user.githubLogin} · {user.tier}
-            </span>
-            <form action="/api/auth/logout" method="post">
-              <button type="submit" className="text-muted hover:text-foreground">
-                log out
-              </button>
-            </form>
-          </>
-        ) : (
-          <Link href="/api/auth/github" className="text-foreground hover:text-muted">
-            sign in with github
-          </Link>
-        )}
-      </div>
-    </nav>
+
+  const links: NavLink[] = [
+    { label: "problems", href: "/problems" },
+    { label: "articles", href: "/articles" },
+    { label: "toolkit", href: "/toolkit" },
+  ];
+  if (user) {
+    links.push({ label: "dashboard", href: "/dashboard" });
+    links.push({ label: "mastery", href: "/mastery" });
+  }
+  if (user?.tier === "owner") {
+    links.push({ label: "admin", href: "/admin" });
+  }
+
+  const brand = (
+    <Link href="/" className="font-mono lowercase tracking-tight text-white">
+      leet
+    </Link>
   );
+
+  const actions = user ? (
+    <>
+      <span className="text-sm text-white/60 lowercase">
+        {user.githubLogin} · {user.tier}
+      </span>
+      <form action="/api/auth/logout" method="post">
+        <Button variant="ghost" size="sm" type="submit">
+          log out
+        </Button>
+      </form>
+    </>
+  ) : (
+    <Button variant="outline" size="sm" href="/api/auth/github">
+      sign in with github
+    </Button>
+  );
+
+  return <ChromeNavbar brand={brand} links={links} actions={actions} />;
 }
