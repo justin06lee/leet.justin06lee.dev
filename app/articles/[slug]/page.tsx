@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import Markdown from "@/components/Markdown";
+import { Prose } from "@/components/chrome/prose";
+import { Badge } from "@/components/chrome/badge";
 import { getArticleBySlug } from "@/lib/articles";
 import { getPattern } from "@/lib/toolkit";
 
@@ -21,12 +22,12 @@ export default async function ArticlePage({
       <header className="flex flex-col gap-2">
         <h1 className="font-mono text-3xl tracking-tight">{article.title}</h1>
         {pattern && (
-          <span className="w-fit rounded border border-border px-2 py-0.5 text-sm text-muted">
-            {pattern.label}
-          </span>
+          <div className="w-fit">
+            <Badge>{pattern.label}</Badge>
+          </div>
         )}
       </header>
-      <Markdown content={article.body} />
+      <Prose>{article.body}</Prose>
     </article>
   );
 }

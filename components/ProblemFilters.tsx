@@ -1,15 +1,28 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import Select from "@/components/chrome/select";
+import { Button } from "@/components/chrome/button";
 import { PATTERNS, type Tier } from "@/lib/toolkit";
 import type { Difficulty } from "@/lib/problems";
 
 const TIERS: Tier[] = ["core", "intermediate", "stretch"];
 const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];
 
-const SELECT_CLASS =
-  "rounded border border-border bg-surface px-2 py-1 text-sm text-foreground lowercase";
+const PATTERN_OPTIONS = [
+  { value: "", label: "all patterns" },
+  ...PATTERNS.map((p) => ({ value: p.key, label: p.label })),
+];
+
+const TIER_OPTIONS = [
+  { value: "", label: "all tiers" },
+  ...TIERS.map((t) => ({ value: t, label: t })),
+];
+
+const DIFFICULTY_OPTIONS = [
+  { value: "", label: "all difficulties" },
+  ...DIFFICULTIES.map((d) => ({ value: d, label: d })),
+];
 
 export default function ProblemFilters() {
   const router = useRouter();
@@ -34,52 +47,28 @@ export default function ProblemFilters() {
 
   return (
     <div className="flex flex-wrap items-center gap-2 lowercase">
-      <select
-        aria-label="pattern"
-        className={SELECT_CLASS}
+      <Select
+        ariaLabel="pattern"
         value={pattern}
-        onChange={(e) => update("pattern", e.target.value)}
-      >
-        <option value="">all patterns</option>
-        {PATTERNS.map((p) => (
-          <option key={p.key} value={p.key}>
-            {p.label}
-          </option>
-        ))}
-      </select>
-
-      <select
-        aria-label="tier"
-        className={SELECT_CLASS}
+        onChange={(value) => update("pattern", value)}
+        options={PATTERN_OPTIONS}
+      />
+      <Select
+        ariaLabel="tier"
         value={tier}
-        onChange={(e) => update("tier", e.target.value)}
-      >
-        <option value="">all tiers</option>
-        {TIERS.map((t) => (
-          <option key={t} value={t}>
-            {t}
-          </option>
-        ))}
-      </select>
-
-      <select
-        aria-label="difficulty"
-        className={SELECT_CLASS}
+        onChange={(value) => update("tier", value)}
+        options={TIER_OPTIONS}
+      />
+      <Select
+        ariaLabel="difficulty"
         value={difficulty}
-        onChange={(e) => update("difficulty", e.target.value)}
-      >
-        <option value="">all difficulties</option>
-        {DIFFICULTIES.map((d) => (
-          <option key={d} value={d}>
-            {d}
-          </option>
-        ))}
-      </select>
-
+        onChange={(value) => update("difficulty", value)}
+        options={DIFFICULTY_OPTIONS}
+      />
       {hasFilters && (
-        <Link href={pathname} className="text-sm text-muted underline underline-offset-4 hover:text-foreground">
+        <Button variant="link" onClick={() => router.push(pathname)}>
           clear
-        </Link>
+        </Button>
       )}
     </div>
   );

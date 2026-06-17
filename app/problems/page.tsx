@@ -1,6 +1,7 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import ProblemFilters from "@/components/ProblemFilters";
+import { Card, CardHeader, CardTitle, CardMeta } from "@/components/chrome/card";
+import { Badge } from "@/components/chrome/badge";
 import { listProblems, type Difficulty } from "@/lib/problems";
 import { getPattern, type Tier } from "@/lib/toolkit";
 
@@ -50,21 +51,18 @@ export default async function ProblemsPage({
             const pat = problem.pattern ? getPattern(problem.pattern) : undefined;
             return (
               <li key={problem.id}>
-                <Link
-                  href={`/problems/${problem.slug}`}
-                  className="flex flex-col gap-2 rounded border border-border bg-surface px-4 py-3 hover:border-foreground sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <span className="text-foreground">{problem.title}</span>
-                  <span className="flex flex-wrap items-center gap-2 text-sm text-muted">
-                    {pat && <span>{pat.label}</span>}
-                    <span className="rounded border border-border px-2 py-0.5">
-                      {problem.difficulty}
-                    </span>
-                    <span className="rounded border border-border px-2 py-0.5">
-                      {problem.judgingMode}
-                    </span>
-                  </span>
-                </Link>
+                <Card>
+                  <CardHeader>
+                    <CardTitle href={`/problems/${problem.slug}`}>
+                      {problem.title}
+                    </CardTitle>
+                    <CardMeta className="flex flex-wrap items-center justify-end gap-2">
+                      {pat && <Badge>{pat.label}</Badge>}
+                      <Badge>{problem.difficulty}</Badge>
+                      <Badge>{problem.judgingMode}</Badge>
+                    </CardMeta>
+                  </CardHeader>
+                </Card>
               </li>
             );
           })}
