@@ -5,11 +5,15 @@ import { useRouter } from "next/navigation";
 import { PATTERNS } from "@/lib/toolkit";
 import { saveArticleAction, deleteArticleAction, type ArticleInput } from "@/app/admin/actions";
 import type { Article } from "@/lib/articles";
+import { Input } from "@/components/chrome/input";
+import { Textarea } from "@/components/chrome/textarea";
+import Select from "@/components/chrome/select";
+import { Button } from "@/components/chrome/button";
 
-const FIELD =
-  "rounded border border-border bg-surface px-2 py-1 text-sm text-foreground lowercase";
-const BUTTON =
-  "rounded border border-border bg-surface px-3 py-1 text-sm text-foreground lowercase hover:border-foreground disabled:opacity-50";
+const PATTERN_OPTIONS = [
+  { value: "", label: "— none —" },
+  ...PATTERNS.map((p) => ({ value: p.key, label: p.label })),
+];
 
 export default function ArticleForm({ initial }: { initial?: Article }) {
   const router = useRouter();
@@ -55,40 +59,37 @@ export default function ArticleForm({ initial }: { initial?: Article }) {
   return (
     <form onSubmit={onSubmit} className="flex max-w-2xl flex-col gap-4 lowercase">
       {error && (
-        <p className="rounded border border-border bg-surface px-3 py-2 text-sm text-foreground">
-          {error}
-        </p>
+        <p className="border border-white/20 px-3 py-2 text-sm text-white">{error}</p>
       )}
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm text-muted">title</span>
-        <input className={FIELD} value={title} onChange={(e) => setTitle(e.target.value)} />
+        <span className="text-sm text-white/60">title</span>
+        <Input value={title} onChange={(e) => setTitle(e.target.value)} />
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm text-muted">pattern</span>
-        <select className={FIELD} value={pattern} onChange={(e) => setPattern(e.target.value)}>
-          <option value="">none</option>
-          {PATTERNS.map((p) => (
-            <option key={p.key} value={p.key}>
-              {p.label}
-            </option>
-          ))}
-        </select>
+        <span className="text-sm text-white/60">pattern</span>
+        <Select
+          value={pattern}
+          onChange={(v) => setPattern(v)}
+          options={PATTERN_OPTIONS}
+          ariaLabel="pattern"
+        />
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="text-sm text-muted">body</span>
-        <textarea
-          className={`${FIELD} min-h-80 font-mono normal-case`}
+        <span className="text-sm text-white/60">body</span>
+        <Textarea
+          className="min-h-80 font-mono normal-case"
           value={body}
           onChange={(e) => setBody(e.target.value)}
         />
       </label>
 
-      <label className="flex items-center gap-2 text-sm text-muted">
+      <label className="flex items-center gap-2 text-sm text-white/60">
         <input
           type="checkbox"
+          className="accent-white"
           checked={published}
           onChange={(e) => setPublished(e.target.checked)}
         />
@@ -96,13 +97,13 @@ export default function ArticleForm({ initial }: { initial?: Article }) {
       </label>
 
       <div className="flex items-center gap-2">
-        <button type="submit" className={BUTTON} disabled={isPending}>
+        <Button type="submit" variant="solid" disabled={isPending}>
           {isPending ? "saving…" : "save"}
-        </button>
+        </Button>
         {initial?.id && (
-          <button type="button" className={BUTTON} disabled={isPending} onClick={onDelete}>
+          <Button type="button" variant="outline" disabled={isPending} onClick={onDelete}>
             delete
-          </button>
+          </Button>
         )}
       </div>
     </form>

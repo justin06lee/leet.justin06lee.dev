@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/chrome/button";
 
 export default function DeleteButton({
   id,
@@ -21,13 +22,8 @@ export default function DeleteButton({
   }
 
   return (
-    <button
-      type="button"
-      onClick={onDelete}
-      disabled={isPending}
-      className="text-sm text-muted underline underline-offset-4 hover:text-foreground disabled:opacity-50 lowercase"
-    >
+    <Button type="button" variant="ghost" size="sm" onClick={onDelete} disabled={isPending}>
       {isPending ? "deleting…" : "delete"}
-    </button>
+    </Button>
   );
 }
