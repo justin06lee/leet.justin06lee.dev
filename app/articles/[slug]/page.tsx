@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
+import { Article } from "@/components/chrome/article";
 import { Prose } from "@/components/chrome/prose";
-import { Badge } from "@/components/chrome/badge";
 import { getArticleBySlug } from "@/lib/articles";
 import { getPattern } from "@/lib/toolkit";
 
@@ -15,19 +15,16 @@ export default async function ArticlePage({
   const article = await getArticleBySlug(slug);
   if (!article) notFound();
 
-  const pattern = article.pattern ? getPattern(article.pattern) : undefined;
+  const patternLabel = article.pattern ? getPattern(article.pattern)?.label : undefined;
 
   return (
-    <article className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-24 lowercase">
-      <header className="flex flex-col gap-2">
-        <h1 className="font-mono text-3xl tracking-tight">{article.title}</h1>
-        {pattern && (
-          <div className="w-fit">
-            <Badge>{pattern.label}</Badge>
-          </div>
-        )}
-      </header>
+    <Article
+      title={article.title}
+      date={article.createdAt}
+      tags={patternLabel ? [patternLabel] : []}
+      backHref="/articles"
+    >
       <Prose>{article.body}</Prose>
-    </article>
+    </Article>
   );
 }

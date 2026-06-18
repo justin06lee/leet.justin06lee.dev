@@ -15,6 +15,8 @@ import { Input } from "@/components/chrome/input";
 import { Textarea } from "@/components/chrome/textarea";
 import Select from "@/components/chrome/select";
 import { Button } from "@/components/chrome/button";
+import { Editor } from "@/components/chrome/editor";
+import { Prose } from "@/components/chrome/prose";
 
 const PATTERN_OPTIONS = [
   { value: "", label: "— none —" },
@@ -121,14 +123,19 @@ export default function ProblemForm({
         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
       </label>
 
-      <label className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1">
         <span className="text-sm text-white/60">statement</span>
-        <Textarea
-          className="min-h-40 font-mono normal-case"
+        <Editor
+          className="h-[480px] border border-white/10 normal-case"
           value={statement}
-          onChange={(e) => setStatement(e.target.value)}
+          onChange={setStatement}
+          renderMarkdown={(source, { highlightLine }) => (
+            <Prose lineSync highlightLine={highlightLine}>
+              {source}
+            </Prose>
+          )}
         />
-      </label>
+      </div>
 
       <label className="flex flex-col gap-1">
         <span className="text-sm text-white/60">pattern</span>
