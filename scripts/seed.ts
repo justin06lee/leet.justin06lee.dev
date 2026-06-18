@@ -8,6 +8,56 @@ import {
   type ProblemParam,
   type ProblemTest,
 } from "../lib/problems";
+import { createArticle, getArticleBySlug } from "../lib/articles";
+
+interface SeedArticle {
+  title: string;
+  slug: string;
+  pattern?: string;
+  body: string;
+}
+
+const ARTICLES: SeedArticle[] = [
+  {
+    title: "the hash map pattern",
+    slug: "the-hash-map-pattern",
+    pattern: "hash-map",
+    body: `the single most-used structure in interviews. a hash map gives you
+**O(1) average** lookup, insert, and "have i seen this before?" — which collapses
+a whole class of nested-loop problems into a single pass.
+
+## the trigger
+
+reach for a hash map when a brute force is "for each element, scan the rest":
+
+- counting frequencies
+- "does a complement / pair exist?"
+- de-duplication and grouping
+- memoizing a value you computed before
+
+## worked example — two sum
+
+the naive solution is two nested loops, \`O(n^2)\`. but as you walk the array
+once, ask: *have i already seen \`target - x\`?*
+
+\`\`\`python
+def twoSum(nums, target):
+    seen = {}
+    for i, x in enumerate(nums):
+        if target - x in seen:
+            return [seen[target - x], i]
+        seen[x] = i
+\`\`\`
+
+one pass, \`O(n)\` time, \`O(n)\` space. the map trades memory for the inner loop.
+
+## where to stop
+
+know the map cold — it's *core*. the next step up is the **hash set** (membership
+only) and frequency-counting tricks. don't over-reach into probabilistic structures
+(bloom filters) until a problem forces it.`,
+  },
+];
 
 type SeedTest = Omit<ProblemTest, "id" | "problemId" | "ordinal">;
 
@@ -105,7 +155,25 @@ async function main(): Promise<void> {
     created += 1;
   }
 
-  console.log(`seed complete: ${created} created, ${skipped} skipped, ${PROBLEMS.length} total`);
+  for (const a of ARTICLES) {
+    const existing = await getArticleBySlug(a.slug, { includeUnpublished: true });
+    if (existing) {
+      console.log(`skip article ${a.slug}`);
+      skipped += 1;
+      continue;
+    }
+    await createArticle({
+      title: a.title,
+      slug: a.slug,
+      body: a.body,
+      pattern: a.pattern,
+      published: true,
+    });
+    console.log(`created article ${a.slug}`);
+    created += 1;
+  }
+
+  console.log(`seed complete: ${created} created, ${skipped} skipped`);
 }
 
 main()
