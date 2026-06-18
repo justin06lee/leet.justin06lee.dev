@@ -1,6 +1,6 @@
 {
   "$schema": "https://chrome.justin06lee.dev/schema.json",
-  "registry": "http://localhost:4567",
+  "registry": "https://chrome.justin06lee.dev/r",
   "style": "default",
   "tsx": true,
   "tailwind": {
