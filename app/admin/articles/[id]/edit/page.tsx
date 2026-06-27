@@ -13,10 +13,5 @@ export default async function EditArticle({ params }: { params: Promise<{ id: st
   const article = articles.find((a) => a.id === id);
   if (!article) notFound();
 
-  return (
-    <section className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-24 lowercase">
-      <h1 className="text-lg text-foreground">edit article</h1>
-      <ArticleForm initial={article} />
-    </section>
-  );
+  return <ArticleForm initial={article} />;
 }
