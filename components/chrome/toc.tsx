@@ -37,6 +37,7 @@ export function Toc({ headings, label = "on this page", className }: TocProps) {
           <li key={h.id}>
             <a
               href={`#${h.id}`}
+              aria-current={activeId === h.id ? "page" : undefined}
               className={cn(
                 "block py-1 text-sm leading-5 transition-colors",
                 activeId === h.id ? "text-white" : "text-white/50 hover:text-white",

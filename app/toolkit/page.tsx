@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Card } from "@/components/chrome/card";
 import { Badge } from "@/components/chrome/badge";
 import { Button } from "@/components/chrome/button";
@@ -77,12 +76,13 @@ export default async function ToolkitPage() {
                             <ul className="flex flex-col gap-0.5 pl-4 text-sm">
                               {patternProblems.map((problem) => (
                                 <li key={problem.id}>
-                                  <Link
+                                  <Button
+                                    variant="link"
                                     href={`/problems/${problem.slug}`}
-                                    className="text-muted underline underline-offset-4 hover:text-foreground"
+                                    className="text-muted hover:text-foreground"
                                   >
                                     {problem.title}
-                                  </Link>
+                                  </Button>
                                 </li>
                               ))}
                             </ul>

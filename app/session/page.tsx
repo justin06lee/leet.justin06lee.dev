@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { requireUser } from "@/lib/auth-server";
 import { buildDailySession } from "@/lib/session";
 import { getTests } from "@/lib/problems";
 import { getPattern } from "@/lib/toolkit";
 import { SessionRunner } from "@/components/session/SessionRunner";
+import { Button } from "@/components/chrome/button";
 
 export const dynamic = "force-dynamic";
 
@@ -38,13 +38,13 @@ export default async function SessionPage() {
         <h1 className="font-mono text-2xl tracking-tight">session</h1>
         <p className="text-muted">
           nothing due right now —{" "}
-          <Link href="/problems" className="text-foreground underline hover:no-underline">
+          <Button variant="link" href="/problems">
             browse problems
-          </Link>
+          </Button>
         </p>
-        <Link href="/dashboard" className="text-sm text-muted hover:text-foreground">
+        <Button variant="link" href="/dashboard" className="text-sm text-white/60 hover:text-white">
           back to dashboard
-        </Link>
+        </Button>
       </section>
     );
   }
