@@ -8,6 +8,7 @@ import type { Article } from "@/lib/articles";
 import { Input } from "@/components/chrome/input";
 import Select from "@/components/chrome/select";
 import { Button } from "@/components/chrome/button";
+import { Checkbox } from "@/components/chrome/checkbox";
 import { Editor } from "@/components/chrome/editor";
 import { Prose } from "@/components/chrome/prose";
 
@@ -92,15 +93,11 @@ export default function ArticleForm({ initial }: { initial?: Article }) {
         />
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-white/60">
-        <input
-          type="checkbox"
-          className="accent-white"
-          checked={published}
-          onChange={(e) => setPublished(e.target.checked)}
-        />
-        published
-      </label>
+      <Checkbox
+        label="published"
+        checked={published}
+        onChange={(e) => setPublished(e.target.checked)}
+      />
 
       <div className="flex items-center gap-2">
         <Button type="submit" variant="solid" disabled={isPending}>

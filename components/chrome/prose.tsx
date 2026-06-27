@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -126,6 +126,14 @@ function PreBlock({ children, ...props }: React.ComponentPropsWithoutRef<"pre">)
  * heading slugs, and copy-on-hover code blocks. Dark-only. Pass markdown as the
  * single string child.
  */
+// Paints the block tagged with `data-sync-highlight` (by rehypeSourceLine) as the
+// gray sync streak. Text blocks bleed the fill horizontally past the words so it
+// doesn't hug them; block-ish content keeps a tight box; an opaque image gets an
+// outline instead. Injected only when lineSync is on (no global stylesheet needed).
+const SYNC_HIGHLIGHT_CSS = `[data-sync-highlight]{background-color:rgba(255,255,255,0.1);}
+:is(p,h1,h2,h3,h4,h5,h6)[data-sync-highlight]{--sync-bleed:0.5rem;margin-left:calc(-1*var(--sync-bleed));margin-right:calc(-1*var(--sync-bleed));padding-left:var(--sync-bleed);padding-right:var(--sync-bleed);}
+[data-sync-highlight] img,img[data-sync-highlight]{outline:2px solid rgba(255,255,255,0.7);outline-offset:3px;}`;
+
 export function Prose({
   children,
   imageBaseUrl,
@@ -133,7 +141,10 @@ export function Prose({
   highlightLine = null,
   className,
 }: ProseProps) {
-  const components: Components = {
+  // Memoize so the component map is stable across renders (only `imageBaseUrl`
+  // affects it via the `img` renderer); otherwise ReactMarkdown re-renders the
+  // whole tree every render.
+  const components: Components = useMemo(() => ({
     h1: ({ children, ...p }) => (
       <h1 className="mb-4 mt-10 text-3xl font-semibold tracking-tight text-white first:mt-0" style={HEADING_SCROLL} {...p}>{children}</h1>
     ),
@@ -201,10 +212,15 @@ export function Prose({
       // eslint-disable-next-line @next/next/no-img-element
       return <img src={resolved} alt={alt || ""} loading="lazy" className="my-5 max-w-full border border-white/10" {...p} />;
     },
-  };
+  }), [imageBaseUrl]);
 
   return (
     <div className={className}>
+      {lineSync ? (
+        <style precedence="default" href="chrome-prose-sync-highlight">
+          {SYNC_HIGHLIGHT_CSS}
+        </style>
+      ) : null}
       <ReactMarkdown
         skipHtml
         remarkPlugins={[remarkGfm, remarkMath]}

@@ -22,7 +22,7 @@ export type ArticleProps = {
 function formatDate(value: string): string {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return value; // already a label
-  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  return d.toLocaleDateString("en-US", { timeZone: "UTC", year: "numeric", month: "long", day: "numeric" });
 }
 
 /**
