@@ -59,56 +59,62 @@ export default function ArticleForm({ initial }: { initial?: Article }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex max-w-2xl flex-col gap-4 lowercase">
-      {error && (
-        <p className="border border-white/20 px-3 py-2 text-sm text-white">{error}</p>
-      )}
-
-      <label className="flex flex-col gap-1">
-        <span className="text-sm text-white/60">title</span>
-        <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-      </label>
-
-      <label className="flex flex-col gap-1">
-        <span className="text-sm text-white/60">pattern</span>
+    // Full-screen authoring: a slim toolbar over an editor that fills the
+    // viewport below the fixed navbar (matches the /desk editor on justin06lee.dev).
+    <form
+      onSubmit={onSubmit}
+      className="flex h-[calc(100vh-var(--sticky-header-offset,3.5rem))] flex-col lowercase"
+    >
+      <div className="flex flex-wrap items-center gap-3 border-b border-white/10 px-4 py-3">
+        <Input
+          className="min-w-0 flex-1 normal-case"
+          placeholder="article title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
         <Select
           value={pattern}
           onChange={(v) => setPattern(v)}
           options={PATTERN_OPTIONS}
           ariaLabel="pattern"
+          size="compact"
+          className="w-44"
         />
-      </label>
-
-      <div className="flex flex-col gap-1">
-        <span className="text-sm text-white/60">body</span>
-        <Editor
-          className="h-[480px] border border-white/10 normal-case"
-          value={body}
-          onChange={setBody}
-          renderMarkdown={(source, { highlightLine }) => (
-            <Prose lineSync highlightLine={highlightLine}>
-              {source}
-            </Prose>
-          )}
+        <Checkbox
+          label="published"
+          checked={published}
+          onChange={(e) => setPublished(e.target.checked)}
         />
-      </div>
-
-      <Checkbox
-        label="published"
-        checked={published}
-        onChange={(e) => setPublished(e.target.checked)}
-      />
-
-      <div className="flex items-center gap-2">
-        <Button type="submit" variant="solid" disabled={isPending}>
-          {isPending ? "saving…" : "save"}
-        </Button>
-        {initial?.id && (
-          <Button type="button" variant="outline" disabled={isPending} onClick={onDelete}>
-            delete
+        {error && <span className="text-sm text-red-300">{error}</span>}
+        <div className="ml-auto flex items-center gap-2">
+          <Button type="submit" variant="solid" size="sm" disabled={isPending}>
+            {isPending ? "saving…" : "save"}
           </Button>
-        )}
+          {initial?.id && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={onDelete}
+            >
+              delete
+            </Button>
+          )}
+        </div>
       </div>
+
+      <Editor
+        className="min-h-0 flex-1 normal-case"
+        value={body}
+        onChange={setBody}
+        placeholder="# write your article in markdown…"
+        renderMarkdown={(source, { highlightLine }) => (
+          <Prose lineSync highlightLine={highlightLine}>
+            {source}
+          </Prose>
+        )}
+      />
     </form>
   );
 }
