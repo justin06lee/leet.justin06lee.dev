@@ -92,13 +92,17 @@ export function CodeBlock({
         <button
           type="button"
           onClick={handleCopy}
-          aria-live="polite"
           aria-label="copy code"
           className="absolute top-2.5 right-3 select-none font-mono text-[11px] text-white/45 transition-colors hover:text-white"
         >
           {copied ? "copied" : "copy"}
         </button>
       )}
+      {/* Announce copy result via a dedicated live region rather than the
+          button's toggling label, which is an unreliable live region. */}
+      <span role="status" aria-live="polite" className="sr-only">
+        {copied ? "copied" : ""}
+      </span>
     </div>
   );
 }

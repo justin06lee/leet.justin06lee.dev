@@ -19,7 +19,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         "disabled:opacity-50",
         className,
       )}
-      style={{ background, ...style }}
+      style={{ ...style, background }}
       {...props}
     />
   ),

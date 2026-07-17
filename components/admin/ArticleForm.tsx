@@ -17,13 +17,20 @@ const PATTERN_OPTIONS = [
   ...PATTERNS.map((p) => ({ value: p.key, label: p.label })),
 ];
 
-export default function ArticleForm({ initial }: { initial?: Article }) {
+export default function ArticleForm({
+  initial,
+  defaultPattern,
+}: {
+  initial?: Article;
+  /** Preselects the pattern for a new article — used by the admin "write these next" links. */
+  defaultPattern?: string;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   const [title, setTitle] = useState(initial?.title ?? "");
-  const [pattern, setPattern] = useState(initial?.pattern ?? "");
+  const [pattern, setPattern] = useState(initial?.pattern ?? defaultPattern ?? "");
   const [body, setBody] = useState(initial?.body ?? "");
   const [published, setPublished] = useState(initial?.published ?? false);
 

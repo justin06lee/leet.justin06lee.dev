@@ -1,7 +1,10 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import ProblemFilters from "@/components/ProblemFilters";
-import { Card, CardHeader, CardTitle, CardMeta } from "@/components/chrome/card";
+import { Card, CardBody } from "@/components/chrome/card";
 import { Badge } from "@/components/chrome/badge";
+import { FadeIn, staggerDelay } from "@/components/chrome/fade-in";
+import { PageHeader } from "@/components/PageHeader";
 import { listProblems, type Difficulty } from "@/lib/problems";
 import { getPattern, type Tier } from "@/lib/toolkit";
 
@@ -38,36 +41,48 @@ export default async function ProblemsPage({
   });
 
   return (
-    <section className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-24 lowercase">
-      <h1 className="font-mono text-3xl tracking-tight">problems</h1>
-      <Suspense fallback={null}>
-        <ProblemFilters />
-      </Suspense>
-      {problems.length === 0 ? (
-        <p className="text-muted">no problems match these filters.</p>
-      ) : (
-        <ul className="flex flex-col gap-3">
-          {problems.map((problem) => {
-            const pat = problem.pattern ? getPattern(problem.pattern) : undefined;
-            return (
-              <li key={problem.id}>
-                <Card>
-                  <CardHeader>
-                    <CardTitle href={`/problems/${problem.slug}`}>
-                      {problem.title}
-                    </CardTitle>
-                    <CardMeta className="flex flex-wrap items-center justify-end gap-2">
-                      {pat && <Badge>{pat.label}</Badge>}
-                      <Badge>{problem.difficulty}</Badge>
-                      <Badge>{problem.judgingMode}</Badge>
-                    </CardMeta>
-                  </CardHeader>
-                </Card>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </section>
+    <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lowercase">
+      <PageHeader
+        title="problems"
+        subtitle="the drill bank — tagged by pattern, not by company. every problem names the idea it exercises."
+      />
+
+      <FadeIn delay={0.2} className="mt-8">
+        <Suspense fallback={null}>
+          <ProblemFilters />
+        </Suspense>
+      </FadeIn>
+
+      <div className="mt-8">
+        {problems.length === 0 ? (
+          <Card className="border-dashed">
+            <CardBody>no problems match these filters.</CardBody>
+          </Card>
+        ) : (
+          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {problems.map((problem, i) => {
+              const pat = problem.pattern ? getPattern(problem.pattern) : undefined;
+              return (
+                <li key={problem.id}>
+                  <FadeIn delay={staggerDelay(Math.min(i, 8), 0.06, 0.25)}>
+                    <Link href={`/problems/${problem.slug}`} className="group block h-full">
+                      <Card className="h-full gap-3 transition-colors group-hover:border-white/25">
+                        <h2 className="text-base font-semibold leading-snug text-white/80 transition-colors group-hover:text-white">
+                          {problem.title}
+                        </h2>
+                        <div className="mt-auto flex flex-wrap items-center gap-2">
+                          {pat ? <Badge variant="ghost">{pat.label}</Badge> : null}
+                          <Badge variant="outline">{problem.difficulty}</Badge>
+                        </div>
+                      </Card>
+                    </Link>
+                  </FadeIn>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </div>
   );
 }

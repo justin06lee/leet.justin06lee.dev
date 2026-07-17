@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "skills": {
+    "justin06lee-frontend": {
+      "name": "justin06lee-frontend",
+      "description": "The justin06lee.dev house frontend design system and the @justin06lee/chrome UI component library. Use when the user explicitly invokes this style — asking for the justin06lee.dev / chrome.justin06lee.dev look, naming the chrome UI library or its components, or asking to build, restyle, or continue the current project in that style. Triggers on phrases like \"justin06lee.dev style\", \"the chrome UI library\", \"use my chrome components\", \"my design system\", \"the house style\", \"make this look like my site\", \"match my other projects\", or \"style this like justin06lee.dev\". Once triggered, it governs the whole task: dark-only black/white, square corners, Tailwind v4, Poppins, Motion, the cn() helper, and the Chrome components. Do NOT use for generic frontend, React, or Tailwind work that never references this design system — an unrelated project has its own conventions and this skill would override them.\n",
+      "scope": "project",
+      "source": "justin06lee/justin06lee.md",
+      "installed_path": "/Volumes/T7/Stockpile/Workspace/github.com/justin06lee/leet.justin06lee.dev/.claude/skills/justin06lee-frontend",
+      "installed_at": "2026-07-17T03:12:06Z",
+      "updated_at": "2026-07-17T03:12:06Z",
+      "source_ref": "main",
+      "source_type": "github"
+    }
+  }
+}

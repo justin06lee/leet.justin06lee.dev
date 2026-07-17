@@ -39,19 +39,41 @@ const DIALOG_KEYFRAMES = `@keyframes chrome-dialog-overlay {
   to   { opacity: 1; transform: translateY(0); }
 }`;
 
+// Opening a dialog over a pending one replaces its state — settle the stranded
+// promise first (a superseded confirm resolves false) so callers never hang.
+function settleStranded(prev: DialogState) {
+  if (!prev) return;
+  if (prev.kind === "confirm") prev.resolve(false);
+  else prev.resolve();
+}
+
 export function DialogProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<DialogState>(null);
   const confirm = useCallback(
     (options: ConfirmOptions) =>
-      new Promise<boolean>((resolve) => setState({ kind: "confirm", options, resolve })),
+      new Promise<boolean>((resolve) =>
+        setState((prev) => {
+          settleStranded(prev);
+          return { kind: "confirm", options, resolve };
+        }),
+      ),
     [],
   );
   const alert = useCallback(
     (options: AlertOptions) =>
-      new Promise<void>((resolve) => setState({ kind: "alert", options, resolve })),
+      new Promise<void>((resolve) =>
+        setState((prev) => {
+          settleStranded(prev);
+          return { kind: "alert", options, resolve };
+        }),
+      ),
     [],
   );
   const panelRef = useRef<HTMLDivElement>(null);
+  const confirmBtnRef = useRef<HTMLButtonElement>(null);
+  const cancelBtnRef = useRef<HTMLButtonElement>(null);
+  // Element focused before the dialog opened, restored on close.
+  const previouslyFocused = useRef<HTMLElement | null>(null);
   const close = useCallback(
     (resolved: boolean) => {
       if (!state) return;
@@ -61,6 +83,34 @@ export function DialogProvider({ children }: { children: React.ReactNode }) {
     },
     [state],
   );
+
+  const isDanger = state?.kind === "confirm" && state.options.danger === true;
+
+  // Capture the previously focused element and move focus into the dialog.
+  // Danger confirms default to Cancel so Enter can't instantly confirm a
+  // destructive action; everything else defaults to the confirm/OK button.
+  useEffect(() => {
+    if (!state) return;
+    previouslyFocused.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const target = isDanger ? cancelBtnRef.current : confirmBtnRef.current;
+    target?.focus();
+    return () => {
+      previouslyFocused.current?.focus();
+      previouslyFocused.current = null;
+    };
+  }, [state, isDanger]);
+
+  // Lock body scroll while a dialog is open.
+  useEffect(() => {
+    if (!state) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [state]);
+
   useEffect(() => {
     if (!state) return;
     function onKey(e: KeyboardEvent) {
@@ -69,8 +119,29 @@ export function DialogProvider({ children }: { children: React.ReactNode }) {
         // the modal, which would otherwise close both at once.
         e.preventDefault();
         close(false);
+        return;
       }
-      if (e.key === "Enter" && panelRef.current?.contains(e.target as Node)) close(true);
+      // Focus trap: keep Tab/Shift+Tab cycling within the dialog's focusables.
+      if (e.key === "Tab") {
+        const panel = panelRef.current;
+        if (!panel) return;
+        const focusables = panel.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey) {
+          if (active === first || !panel.contains(active)) {
+            e.preventDefault();
+            last?.focus();
+          }
+        } else if (active === last || !panel.contains(active)) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -109,13 +180,13 @@ export function DialogProvider({ children }: { children: React.ReactNode }) {
             </div>
             <div className="flex items-center justify-end gap-2 pt-1">
               {state.kind === "confirm" && (
-                <button type="button" onClick={() => close(false)} className="text-xs text-white/60 hover:text-white px-3 py-1">
+                <button ref={cancelBtnRef} type="button" onClick={() => close(false)} className="text-xs text-white/60 hover:text-white px-3 py-1">
                   {state.options.cancelText ?? "Cancel"}
                 </button>
               )}
               <button
+                ref={confirmBtnRef}
                 type="button"
-                autoFocus
                 onClick={() => close(true)}
                 className={`text-xs border px-3 py-1 transition ${
                   state.kind === "confirm" && state.options.danger

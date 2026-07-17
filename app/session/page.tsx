@@ -4,6 +4,7 @@ import { getTests } from "@/lib/problems";
 import { getPattern } from "@/lib/toolkit";
 import { SessionRunner } from "@/components/session/SessionRunner";
 import { Button } from "@/components/chrome/button";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -34,18 +35,20 @@ export default async function SessionPage() {
 
   if (runnerItems.length === 0) {
     return (
-      <section className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-24 lowercase">
-        <h1 className="font-mono text-2xl tracking-tight">session</h1>
-        <p className="text-muted">
-          nothing due right now —{" "}
-          <Button variant="link" href="/problems">
-            browse problems
+      <div className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lowercase">
+        <PageHeader
+          title="session"
+          subtitle="nothing due right now. the scheduler only surfaces a pattern when it's actually worth reviewing — so an empty queue means you're on track."
+        />
+        <div className="mt-8 flex flex-wrap gap-2">
+          <Button variant="solid" href="/toolkit">
+            pick up a new pattern
           </Button>
-        </p>
-        <Button variant="link" href="/dashboard" className="text-sm text-white/60 hover:text-white">
-          back to dashboard
-        </Button>
-      </section>
+          <Button variant="outline" href="/dashboard">
+            back to dashboard
+          </Button>
+        </div>
+      </div>
     );
   }
 
