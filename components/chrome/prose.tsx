@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
-import { AlertCircle, Check, Copy } from "lucide-react";
+import { CodeBlock } from "@/components/chrome/code-block";
 import "katex/dist/katex.min.css";
 
 export type ProseProps = {
@@ -27,6 +27,19 @@ export type ProseProps = {
    * applies when `lineSync` is true.
    */
   highlightLine?: number | null;
+  /**
+   * Anchor element/component for internal links (relative, `/…`, `#…`) — pass
+   * your router's Link for client-side navigation. External links (`http(s)://`,
+   * `mailto:`, …) always render a plain `<a>` (http(s) opens in a new tab).
+   * Default "a".
+   */
+  linkComponent?: React.ElementType;
+  /**
+   * Maps each image src to the src actually rendered (e.g. swap
+   * `foo-light.png` ↔ `foo-dark.png` theme variants). Runs after
+   * `imageBaseUrl` resolution, so it receives the final src.
+   */
+  resolveImageSrc?: (src: string) => string;
   className?: string;
 };
 
@@ -63,67 +76,22 @@ function isExternal(href: string): boolean {
   return href.startsWith("http://") || href.startsWith("https://");
 }
 
+// Internal = no protocol scheme (mailto:, http:, …) and not protocol-relative —
+// i.e. relative paths, `/…`, and `#…` anchors. These render through
+// `linkComponent`; everything else stays a plain `<a>`.
+function isInternal(href: string): boolean {
+  return !/^[a-z][a-z0-9+.-]*:/i.test(href) && !href.startsWith("//");
+}
+
 function isResolved(src: string): boolean {
   return /^(https?:|data:|\/)/.test(src);
 }
 
 const HEADING_SCROLL = { scrollMarginTop: "var(--sticky-header-offset, 80px)" };
 
-type CopyStatus = "idle" | "copied" | "error";
-
-function PreBlock({ children, ...props }: React.ComponentPropsWithoutRef<"pre">) {
-  const ref = useRef<HTMLPreElement>(null);
-  const [status, setStatus] = useState<CopyStatus>("idle");
-  const timerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) window.clearTimeout(timerRef.current);
-    };
-  }, []);
-
-  const copy = async () => {
-    const code = ref.current?.querySelector("code");
-    const text = (code ?? ref.current)?.textContent ?? "";
-    try {
-      if (!navigator.clipboard?.writeText) {
-        throw new Error("clipboard unavailable");
-      }
-      await navigator.clipboard.writeText(text);
-      setStatus("copied");
-    } catch {
-      setStatus("error");
-    }
-    if (timerRef.current) window.clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(() => setStatus("idle"), 2000);
-  };
-
-  const Icon = status === "copied" ? Check : status === "error" ? AlertCircle : Copy;
-  const label = status === "copied" ? "copied" : status === "error" ? "copy failed" : "copy code";
-
-  return (
-    <pre
-      ref={ref}
-      className="group relative my-5 overflow-x-auto border border-white/10 bg-white/[0.03] p-4 font-mono text-[13px] leading-6"
-      {...props}
-    >
-      {children}
-      <button
-        type="button"
-        onClick={copy}
-        aria-label={label}
-        title={label}
-        className="absolute right-2 top-2 text-white/40 opacity-0 transition hover:text-white focus:opacity-100 focus:outline-none group-hover:opacity-100"
-      >
-        <Icon className="size-4" />
-      </button>
-    </pre>
-  );
-}
-
 /**
  * Markdown renderer with the justin06lee.dev prose styling — GFM, math (KaTeX),
- * heading slugs, and copy-on-hover code blocks. Dark-only. Pass markdown as the
+ * heading slugs, and syntax-highlighted code blocks (via `code-block`). Dark-only. Pass markdown as the
  * single string child.
  */
 // Paints the block tagged with `data-sync-highlight` (by rehypeSourceLine) as the
@@ -139,34 +107,43 @@ export function Prose({
   imageBaseUrl,
   lineSync = false,
   highlightLine = null,
+  linkComponent: LinkComponent = "a",
+  resolveImageSrc,
   className,
 }: ProseProps) {
-  // Memoize so the component map is stable across renders (only `imageBaseUrl`
-  // affects it via the `img` renderer); otherwise ReactMarkdown re-renders the
-  // whole tree every render.
+  // Memoize so the component map is stable across renders (only `imageBaseUrl`,
+  // `linkComponent`, and `resolveImageSrc` affect it via the `a`/`img`
+  // renderers); otherwise ReactMarkdown re-renders the whole tree every render.
   const components: Components = useMemo(() => ({
-    h1: ({ children, ...p }) => (
+    h1: ({ children, node, ...p }) => (
       <h1 className="mb-4 mt-10 text-3xl font-semibold tracking-tight text-white first:mt-0" style={HEADING_SCROLL} {...p}>{children}</h1>
     ),
-    h2: ({ children, ...p }) => (
+    h2: ({ children, node, ...p }) => (
       <h2 className="mb-3 mt-10 text-2xl font-semibold tracking-tight text-white" style={HEADING_SCROLL} {...p}>{children}</h2>
     ),
-    h3: ({ children, ...p }) => (
+    h3: ({ children, node, ...p }) => (
       <h3 className="mb-2 mt-8 text-xl font-semibold tracking-tight text-white" style={HEADING_SCROLL} {...p}>{children}</h3>
     ),
-    h4: ({ children, ...p }) => (
+    h4: ({ children, node, ...p }) => (
       <h4 className="mb-2 mt-6 text-lg font-semibold text-white" style={HEADING_SCROLL} {...p}>{children}</h4>
     ),
-    h5: ({ children, ...p }) => (
+    h5: ({ children, node, ...p }) => (
       <h5 className="mb-2 mt-5 text-base font-semibold text-white" style={HEADING_SCROLL} {...p}>{children}</h5>
     ),
-    h6: ({ children, ...p }) => (
+    h6: ({ children, node, ...p }) => (
       <h6 className="mb-2 mt-4 text-sm font-semibold uppercase tracking-widest text-white/60" style={HEADING_SCROLL} {...p}>{children}</h6>
     ),
-    p: ({ children, ...p }) => <p className="my-4 text-[15px] leading-7 text-white/85" {...p}>{children}</p>,
+    p: ({ children, node, ...p }) => <p className="my-4 text-[15px] leading-7 text-white/85" {...p}>{children}</p>,
     a: ({ children, href }) => {
       const value = typeof href === "string" ? href : "";
       const cls = "text-white underline decoration-white/40 underline-offset-4 transition-colors hover:decoration-white";
+      if (value && isInternal(value)) {
+        return (
+          <LinkComponent href={value} className={cls}>
+            {children}
+          </LinkComponent>
+        );
+      }
       return (
         <a
           href={value || undefined}
@@ -177,12 +154,12 @@ export function Prose({
         </a>
       );
     },
-    strong: ({ children, ...p }) => <strong className="font-semibold text-white" {...p}>{children}</strong>,
-    em: ({ children, ...p }) => <em className="italic" {...p}>{children}</em>,
-    ul: ({ children, ...p }) => <ul className="my-4 ml-6 list-disc space-y-1.5 text-white/85" {...p}>{children}</ul>,
-    ol: ({ children, ...p }) => <ol className="my-4 ml-6 list-decimal space-y-1.5 text-white/85" {...p}>{children}</ol>,
-    li: ({ children, ...p }) => <li className="text-[15px] leading-7" {...p}>{children}</li>,
-    blockquote: ({ children, ...p }) => (
+    strong: ({ children, node, ...p }) => <strong className="font-semibold text-white" {...p}>{children}</strong>,
+    em: ({ children, node, ...p }) => <em className="italic" {...p}>{children}</em>,
+    ul: ({ children, node, ...p }) => <ul className="my-4 ml-6 list-disc space-y-1.5 text-white/85" {...p}>{children}</ul>,
+    ol: ({ children, node, ...p }) => <ol className="my-4 ml-6 list-decimal space-y-1.5 text-white/85" {...p}>{children}</ol>,
+    li: ({ children, node, ...p }) => <li className="text-[15px] leading-7" {...p}>{children}</li>,
+    blockquote: ({ children, node, ...p }) => (
       <blockquote className="my-5 border-l-2 border-white/30 pl-4 italic text-white/60" {...p}>{children}</blockquote>
     ),
     code: ({ children, className: cls, node, ...p }) => {
@@ -197,22 +174,46 @@ export function Prose({
       }
       return <code className="border border-white/10 bg-white/[0.06] px-1.5 py-0.5 font-mono text-[0.85em] text-white" {...p}>{children}</code>;
     },
-    pre: PreBlock,
-    table: ({ children, ...p }) => (
+    pre: ({ node }) => {
+      // Fenced code: extract the raw text + language from the hast node and
+      // hand it to CodeBlock for syntax highlighting. The wrapper re-stamps the
+      // pre's sync attributes so lineSync still targets the block.
+      let text = "";
+      let language: string | undefined;
+      const first = node?.children?.[0];
+      if (first && first.type === "element" && first.tagName === "code") {
+        const cls = first.properties?.className;
+        const classes = Array.isArray(cls) ? cls.map(String) : typeof cls === "string" ? [cls] : [];
+        language = classes.find((c) => c.startsWith("language-"))?.slice("language-".length);
+        text = first.children.map((c) => (c.type === "text" ? c.value : "")).join("");
+      }
+      const properties = node?.properties ?? {};
+      return (
+        <div
+          className="my-5"
+          data-source-line={properties.dataSourceLine as number | undefined}
+          data-sync-highlight={properties.dataSyncHighlight ? true : undefined}
+        >
+          <CodeBlock code={text.replace(/\n$/, "")} language={language ?? "markup"} />
+        </div>
+      );
+    },
+    table: ({ children, node, ...p }) => (
       <div className="my-5 overflow-x-auto">
         <table className="w-full border-collapse border border-white/10 text-sm" {...p}>{children}</table>
       </div>
     ),
-    th: ({ children, ...p }) => <th className="border border-white/10 bg-white/[0.04] px-4 py-2 text-left font-semibold text-white" {...p}>{children}</th>,
-    td: ({ children, ...p }) => <td className="border border-white/10 px-4 py-2 text-white/85" {...p}>{children}</td>,
-    hr: (p) => <hr className="my-10 border-white/10" {...p} />,
-    img: ({ src, alt, ...p }) => {
+    th: ({ children, node, ...p }) => <th className="border border-white/10 bg-white/[0.04] px-4 py-2 text-left font-semibold text-white" {...p}>{children}</th>,
+    td: ({ children, node, ...p }) => <td className="border border-white/10 px-4 py-2 text-white/85" {...p}>{children}</td>,
+    hr: ({ node, ...p }) => <hr className="my-10 border-white/10" {...p} />,
+    img: ({ src, alt, node, ...p }) => {
       const s = typeof src === "string" ? src : "";
-      const resolved = s && imageBaseUrl && !isResolved(s) ? `${imageBaseUrl}/${s.replace(/^\.\//, "")}` : s;
+      const based = s && imageBaseUrl && !isResolved(s) ? `${imageBaseUrl}/${s.replace(/^\.\//, "")}` : s;
+      const resolved = based && resolveImageSrc ? resolveImageSrc(based) : based;
       // eslint-disable-next-line @next/next/no-img-element
       return <img src={resolved} alt={alt || ""} loading="lazy" className="my-5 max-w-full border border-white/10" {...p} />;
     },
-  }), [imageBaseUrl]);
+  }), [imageBaseUrl, LinkComponent, resolveImageSrc]);
 
   return (
     <div className={className}>

@@ -16,7 +16,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         "disabled:opacity-50",
         className,
       )}
-      style={{ background, ...style }}
+      style={{ ...style, background }}
       {...props}
     />
   ),

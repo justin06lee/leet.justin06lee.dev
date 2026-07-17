@@ -77,7 +77,7 @@ export function Button({
   const iconOnly = !children;
   const isLink = variant === "link";
   const hasIcon = Boolean(Icon || IconRight);
-  const iconPx = !isLink && iconOnly ? (size === "sm" ? 20 : 18) : 16;
+  const iconPx = !isLink && iconOnly ? (size === "sm" ? 18 : 20) : 16;
 
   const showFeedback = copy && copied;
   const tooltipShown = showFeedback ? copyFeedback : tooltip;
@@ -111,14 +111,15 @@ export function Button({
     className,
   );
 
-  const ariaLabel = iconOnly
-    ? (label ?? (typeof children === "string" ? children : undefined))
-    : undefined;
+  // Icon-only buttons have no visible text, so they need an accessible name:
+  // prefer an explicit `label`, then fall back to `tooltip`. (Children are
+  // absent when iconOnly.) Labelled buttons get their name from visible text.
+  const ariaLabel = iconOnly ? (label ?? tooltip) : undefined;
 
   const content = (
     <>
       {tooltipShown && (
-        <span className="pointer-events-none absolute bottom-full left-1/2 z-10 whitespace-nowrap bg-white px-2 py-1 text-[11px] text-black opacity-0 [transform:translate(-50%,4px)] transition-[opacity,transform] duration-150 group-hover:opacity-100 group-hover:[transform:translate(-50%,-4px)]">
+        <span aria-hidden className="pointer-events-none absolute bottom-full left-1/2 z-10 whitespace-nowrap bg-white px-2 py-1 text-[11px] text-black opacity-0 [transform:translate(-50%,4px)] transition-[opacity,transform] duration-150 group-hover:opacity-100 group-hover:[transform:translate(-50%,-4px)]">
           {tooltipShown}
         </span>
       )}
@@ -128,6 +129,10 @@ export function Button({
     </>
   );
 
+  // Precedence: `copy` (and `disabled`) win over `href`. When `copy` is set the
+  // element must be a real <button> to run the clipboard handler, so we fall
+  // through to the button branch and the anchor (href + onClick navigation) is
+  // intentionally not rendered. Don't combine `copy` with `href`.
   if (href && !copy && !disabled) {
     const external = /^https?:\/\//.test(href);
     return (

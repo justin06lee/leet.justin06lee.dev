@@ -46,6 +46,7 @@ export default function Select<T extends string | number>({
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const listboxRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const baseId = useId();
   const optionId = (i: number) => `${baseId}-option-${i}`;
 
@@ -101,6 +102,9 @@ export default function Select<T extends string | number>({
     if (!o || o.disabled) return;
     onChange(o.value);
     setOpen(false);
+    // Closing unmounts the focused listbox — return focus to the trigger so
+    // it doesn't fall back to document.body.
+    triggerRef.current?.focus();
   };
 
   function onListboxKeyDown(e: KeyboardEvent<HTMLDivElement>) {
@@ -135,6 +139,7 @@ export default function Select<T extends string | number>({
         e.preventDefault();
         e.stopPropagation();
         setOpen(false);
+        triggerRef.current?.focus();
         break;
     }
   }
@@ -144,6 +149,7 @@ export default function Select<T extends string | number>({
   return (
     <div ref={containerRef} className={`relative ${className ?? ""}`} style={{ background }}>
       <button
+        ref={triggerRef}
         type="button"
         disabled={disabled}
         aria-label={ariaLabel}
@@ -184,11 +190,8 @@ export default function Select<T extends string | number>({
                 aria-selected={active}
                 disabled={o.disabled}
                 onMouseEnter={() => setActiveIndex(i)}
-                onClick={() => {
-                  onChange(o.value);
-                  setOpen(false);
-                }}
-                className={`w-full flex items-center gap-2 ${optionPad} text-left disabled:opacity-40 ${active ? "bg-white/10 text-white" : highlighted ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/10"}`}
+                onClick={() => selectAt(i)}
+                className={`w-full flex items-center gap-2 ${optionPad} text-left disabled:opacity-40 ${active || highlighted ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/10"}`}
               >
                 {o.prefix}
                 <span className="truncate">{o.label}</span>

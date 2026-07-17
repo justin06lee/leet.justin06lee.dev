@@ -1,93 +1,86 @@
-import { Card } from "@/components/chrome/card";
+import Link from "next/link";
+import { BookOpen, Dumbbell } from "lucide-react";
+import {
+  getPatternCoverage,
+  patternsByKindAndTier,
+  KINDS,
+  TIERS,
+  TIER_BLURB,
+} from "@/lib/patterns";
+import { PATTERNS } from "@/lib/toolkit";
 import { Badge } from "@/components/chrome/badge";
-import { Button } from "@/components/chrome/button";
-import { listArticles, type Article } from "@/lib/articles";
-import { listProblems, type Problem } from "@/lib/problems";
-import { PATTERNS, type PatternKind, type Tier } from "@/lib/toolkit";
+import { FadeIn, staggerDelay } from "@/components/chrome/fade-in";
+import { PageHeader } from "@/components/PageHeader";
 
 export const dynamic = "force-dynamic";
 
-const KINDS: { key: PatternKind; label: string }[] = [
-  { key: "structure", label: "data structures" },
-  { key: "technique", label: "techniques & patterns" },
-];
-
-const TIERS: Tier[] = ["core", "intermediate", "stretch"];
-
 export default async function ToolkitPage() {
-  const [problems, articles] = await Promise.all([listProblems({}), listArticles()]);
-
-  const problemsByPattern = new Map<string, Problem[]>();
-  for (const problem of problems) {
-    if (!problem.pattern) continue;
-    const list = problemsByPattern.get(problem.pattern) ?? [];
-    list.push(problem);
-    problemsByPattern.set(problem.pattern, list);
-  }
-
-  const articleByPattern = new Map<string, Article>();
-  for (const article of articles) {
-    if (article.pattern && !articleByPattern.has(article.pattern)) {
-      articleByPattern.set(article.pattern, article);
-    }
-  }
+  const coverage = await getPatternCoverage();
+  const taughtCount = PATTERNS.filter((p) => coverage.taught.has(p.key)).length;
 
   return (
-    <section className="mx-auto flex max-w-3xl flex-col gap-12 px-6 py-24 lowercase">
-      <header className="flex flex-col gap-2">
-        <h1 className="font-mono text-3xl tracking-tight">toolkit</h1>
-        <p className="text-muted">the syllabus map — every structure and technique, by tier.</p>
-      </header>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-16 px-6 py-16 lowercase">
+      <PageHeader
+        eyebrow="the syllabus"
+        title="toolkit"
+        subtitle={`every structure and technique worth knowing, tiered so you know where to stop. ${taughtCount} of ${PATTERNS.length} written so far.`}
+      />
 
       {KINDS.map((kind) => (
-        <div key={kind.key} className="flex flex-col gap-8">
-          <h2 className="flex items-center gap-2 font-mono text-2xl tracking-tight">
-            {kind.label}
-            <Badge variant="ghost">{kind.key}</Badge>
-          </h2>
+        <section key={kind.key} className="flex flex-col gap-10">
+          <h2 className="font-mono text-2xl tracking-tight text-white">{kind.label}</h2>
+
           {TIERS.map((tier) => {
-            const patterns = PATTERNS.filter((p) => p.kind === kind.key && p.tier === tier);
+            const patterns = patternsByKindAndTier(kind.key, tier);
             if (patterns.length === 0) return null;
+
             return (
               <div key={tier} className="flex flex-col gap-4">
-                <div>
-                  <Badge variant="outline">{tier}</Badge>
+                <div className="flex flex-col gap-1 border-b border-white/10 pb-3">
+                  <div className="flex items-center gap-3">
+                    <Badge variant="outline">{tier}</Badge>
+                    <span className="font-mono text-xs text-white/40">
+                      {patterns.length} {patterns.length === 1 ? "pattern" : "patterns"}
+                    </span>
+                  </div>
+                  <p className="text-sm text-white/50">{TIER_BLURB[tier]}</p>
                 </div>
-                <ul className="flex flex-col gap-4">
-                  {patterns.map((pattern) => {
-                    const article = articleByPattern.get(pattern.key);
-                    const patternProblems = problemsByPattern.get(pattern.key) ?? [];
-                    const hasContent = Boolean(article) || patternProblems.length > 0;
+
+                <ul className="flex flex-col">
+                  {patterns.map((pattern, i) => {
+                    const taught = coverage.taught.has(pattern.key);
+                    const problems = coverage.problemCounts.get(pattern.key) ?? 0;
+
                     return (
                       <li key={pattern.key}>
-                        <Card className={hasContent ? "" : "text-muted"}>
-                          <div>
-                            {article ? (
-                              <Button variant="link" href={`/articles/${article.slug}`}>
-                                {pattern.label}
-                              </Button>
-                            ) : (
-                              <span className={hasContent ? "text-foreground" : ""}>
-                                {pattern.label}
-                              </span>
-                            )}
-                          </div>
-                          {patternProblems.length > 0 && (
-                            <ul className="flex flex-col gap-0.5 pl-4 text-sm">
-                              {patternProblems.map((problem) => (
-                                <li key={problem.id}>
-                                  <Button
-                                    variant="link"
-                                    href={`/problems/${problem.slug}`}
-                                    className="text-muted hover:text-foreground"
-                                  >
-                                    {problem.title}
-                                  </Button>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </Card>
+                        <FadeIn delay={staggerDelay(i, 0.02)}>
+                          <Link
+                            href={`/patterns/${pattern.key}`}
+                            className="group flex items-center justify-between gap-4 border-b border-white/5 py-2.5 transition-colors hover:bg-white/5"
+                          >
+                            <span className="truncate text-[15px] text-white/80 transition-colors group-hover:text-white">
+                              {pattern.label}
+                            </span>
+                            <span className="flex shrink-0 items-center gap-3 font-mono text-xs text-white/35">
+                              {taught ? (
+                                <span
+                                  className="flex items-center gap-1 text-white/60"
+                                  title="article published"
+                                >
+                                  <BookOpen aria-hidden className="size-3" />
+                                  article
+                                </span>
+                              ) : null}
+                              {problems > 0 ? (
+                                <span className="flex items-center gap-1" title="problems published">
+                                  <Dumbbell aria-hidden className="size-3" />
+                                  {problems}
+                                </span>
+                              ) : null}
+                              {!taught && problems === 0 ? <span>not written</span> : null}
+                            </span>
+                          </Link>
+                        </FadeIn>
                       </li>
                     );
                   })}
@@ -95,8 +88,8 @@ export default async function ToolkitPage() {
               </div>
             );
           })}
-        </div>
+        </section>
       ))}
-    </section>
+    </div>
   );
 }

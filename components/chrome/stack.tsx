@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "@/lib/utils";
 
 export interface StackProps extends React.HTMLAttributes<HTMLDivElement> {
   /** how many paper layers sit behind the front card. default 1. */
@@ -10,6 +11,14 @@ export interface StackProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const SPRING = "transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1)";
+
+/** The fan-out is a hover flourish — skip it entirely for reduced-motion users. */
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true
+  );
+}
 
 export function Stack({
   children,
@@ -23,10 +32,10 @@ export function Stack({
 
   return (
     <div
-      onMouseEnter={() => setHover(true)}
+      onMouseEnter={() => setHover(!prefersReducedMotion())}
       onMouseLeave={() => setHover(false)}
-      className={"relative h-44 w-40 " + className}
-      style={{ background, ...style }}
+      className={cn("relative h-44 w-40", className)}
+      style={{ ...style, background }}
       {...rest}
     >
       {Array.from({ length: layers }).map((_, i) => (

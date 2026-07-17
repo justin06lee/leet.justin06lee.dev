@@ -1,7 +1,13 @@
 @import "tailwindcss";
 
-/* @chrome:theme — house font for the @justin06lee/chrome design system.
-   Falls back to Geist sans (bundled via next/font) if the CDN is blocked. */
+/* House body font. Geist ships bundled via the `geist` package and provides the
+   sans fallback plus the mono face — Geist Mono's metrics are load-bearing for
+   the fixed character grid the ascii donut renders on, which is why it is
+   self-hosted rather than fetched at build time.
+
+   Everything below this line and above the @chrome:theme fence is ours; the
+   fenced block is owned by `chrome init` and replaced wholesale on rerun, so
+   nothing custom may live inside it. */
 @font-face {
   font-family: "Poppins";
   font-style: normal;
@@ -11,6 +17,34 @@
     format("woff2");
 }
 
+/* Scrollbars are hidden site-wide — functional, just invisible. Inner scroll
+   containers need the rule too, hence the universal selector. */
+html {
+  overflow-x: hidden;
+}
+html::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none;
+}
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html,
+body {
+  overscroll-behavior: none;
+}
+
+/* Keep autofilled inputs on the dark surface instead of the UA's yellow. */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: white;
+  -webkit-box-shadow: 0 0 0 1000px black inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* @chrome:theme */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -32,7 +66,8 @@
   --border: rgba(255, 255, 255, 0.12);
   --muted: rgba(255, 255, 255, 0.6);
   --accent: #ffffff;
-  --sticky-header-offset: 56px;
+  /* Clears the 56px fixed navbar, plus breathing room, for anchored headings. */
+  --sticky-header-offset: 80px;
 }
 
 body {

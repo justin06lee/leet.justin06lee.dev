@@ -18,6 +18,7 @@
     "@libsql/client": "^0.17.0",
     "@uiw/react-codemirror": "^4.25.10",
     "clsx": "^2.1.1",
+    "geist": "^1.7.2",
     "katex": "^0.17.0",
     "lucide-react": "^1.24.0",
     "motion": "^12.42.2",

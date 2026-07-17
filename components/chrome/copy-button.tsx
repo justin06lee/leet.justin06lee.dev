@@ -47,18 +47,24 @@ export function CopyButton({
     state === "copied" ? labels.copied : state === "error" ? labels.error : labels.idle;
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      aria-live="polite"
-      className={
-        "font-mono text-[11px] text-white/55 hover:text-white transition-colors " +
-        className
-      }
-      style={{ background, ...style }}
-      {...rest}
-    >
-      {children ?? label}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={handleClick}
+        className={
+          "font-mono text-[11px] text-white/55 hover:text-white transition-colors " +
+          className
+        }
+        style={{ background, ...style }}
+        {...rest}
+      >
+        {children ?? label}
+      </button>
+      {/* Announce copy result independently of the button's own label, which is
+          an unreliable live region while it also receives focus. */}
+      <span role="status" aria-live="polite" className="sr-only">
+        {state === "copied" ? labels.copied : state === "error" ? labels.error : ""}
+      </span>
+    </>
   );
 }

@@ -12,7 +12,7 @@ export type UseTabsOptions<T extends string> = {
   value: T;
   onValueChange: (value: T) => void;
   items: TabItem<T>[];
-  /** Loop focus from last → first (and back). Defaults to true. */
+  /** Loop focus from last back to first (and vice versa). Defaults to true. */
   loop?: boolean;
 };
 
@@ -65,8 +65,12 @@ export function useTabs<T extends string>({
 
   const move = (dir: 1 | -1) => {
     if (enabled.length === 0) return;
+    // If the controlled value points at a disabled (or unknown) tab, findIndex
+    // returns -1. Start from the edge so the first arrow press lands on a sane
+    // enabled tab instead of jumping off either end.
     const idx = enabled.findIndex((i) => i.value === value);
-    let next = idx + dir;
+    const from = idx === -1 ? (dir === 1 ? -1 : enabled.length) : idx;
+    let next = from + dir;
     if (next < 0) next = loop ? enabled.length - 1 : 0;
     if (next > enabled.length - 1) next = loop ? 0 : enabled.length - 1;
     const target = enabled[next];
