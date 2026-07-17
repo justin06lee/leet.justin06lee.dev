@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/icons";
 import { requireOwner } from "@/lib/auth-server";
 import { listArticles, type Article } from "@/lib/articles";
 import { getPattern } from "@/lib/toolkit";

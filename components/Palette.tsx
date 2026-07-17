@@ -17,7 +17,7 @@ const PAGES: PaletteItem[] = [
 
 /**
  * Global cmd+k navigation. Every pattern in the syllabus is reachable by name —
- * with 80 of them, search beats scrolling the toolkit. Mounted once in the root
+ * there are far too many to scroll the toolkit for. Mounted once in the root
  * layout; the palette renders nothing until opened.
  */
 export function Palette() {

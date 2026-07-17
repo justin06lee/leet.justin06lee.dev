@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/components/icons";
 import { requireOwner } from "@/lib/auth-server";
 import { listArticles } from "@/lib/articles";
 import { listProblems } from "@/lib/problems";

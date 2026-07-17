@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/components/icons";
 import { getCurrentUser } from "@/lib/auth-server";
 import { getPatternCoverage } from "@/lib/patterns";
 import { PATTERNS } from "@/lib/toolkit";
@@ -49,7 +49,7 @@ export default async function Home() {
         </FadeIn>
 
         <FadeIn delay={0.1} className="flex flex-col gap-5">
-          <h1 className="max-w-3xl font-mono text-4xl leading-tight tracking-tight text-white sm:text-5xl">
+          <h1 className="max-w-3xl text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl">
             stop memorizing questions.
             <br />
             learn the patterns.
@@ -83,7 +83,7 @@ export default async function Home() {
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
             the differentiator
           </span>
-          <h2 className="font-mono text-2xl tracking-tight text-white">know where to stop.</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-white">know where to stop.</h2>
           <p className="max-w-2xl text-white/60">
             every pattern sits in a tier. the tier tells you how well you need to know it — and
             when to walk away. past stretch is competitive-programming territory, and you can
@@ -110,7 +110,7 @@ export default async function Home() {
 
       <section className="flex flex-col gap-6">
         <FadeIn>
-          <h2 className="font-mono text-2xl tracking-tight text-white">how it works</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-white">how it works</h2>
         </FadeIn>
         <div className="grid gap-4 sm:grid-cols-3">
           {STEPS.map((step, i) => (
@@ -119,7 +119,7 @@ export default async function Home() {
                 <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
                   {step.n}
                 </span>
-                <h3 className="font-mono text-lg tracking-tight text-white">{step.title}</h3>
+                <h3 className="text-lg font-semibold leading-tight text-white">{step.title}</h3>
                 <p className="text-sm leading-6 text-white/60">{step.body}</p>
               </Card>
             </FadeIn>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/components/icons";
 import { Article } from "@/components/chrome/article";
 import { Prose } from "@/components/chrome/prose";
 import { Button } from "@/components/chrome/button";

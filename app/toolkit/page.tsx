@@ -28,7 +28,7 @@ export default async function ToolkitPage() {
 
       {KINDS.map((kind) => (
         <section key={kind.key} className="flex flex-col gap-10">
-          <h2 className="font-mono text-2xl tracking-tight text-white">{kind.label}</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-white">{kind.label}</h2>
 
           {TIERS.map((tier) => {
             const patterns = patternsByKindAndTier(kind.key, tier);

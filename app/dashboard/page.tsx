@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/components/icons";
 import { requireUser } from "@/lib/auth-server";
 import { getMastery } from "@/lib/mastery";
 import { buildDailySession } from "@/lib/session";
@@ -8,8 +8,8 @@ import { dayToISO, epochDay } from "@/lib/day";
 import { Button } from "@/components/chrome/button";
 import { Badge } from "@/components/chrome/badge";
 import { Card, CardBody } from "@/components/chrome/card";
-import { Heatmap } from "@/components/chrome/heatmap";
 import { FadeIn } from "@/components/chrome/fade-in";
+import { ActivityHeatmap } from "@/components/ActivityHeatmap";
 import { PageHeader } from "@/components/PageHeader";
 import { StatTile } from "@/components/StatTile";
 import { Meter } from "@/components/Meter";
@@ -97,14 +97,7 @@ export default async function Dashboard() {
           <h2 className="text-2xl font-semibold tracking-tight text-white">activity</h2>
           <p className="text-sm text-white/50">reviews per day, {year}.</p>
         </div>
-        <Heatmap
-          values={activity}
-          year={year}
-          today={today}
-          title={(date, value) =>
-            `${date} — ${value} ${value === 1 ? "review" : "reviews"}`
-          }
-        />
+        <ActivityHeatmap values={activity} year={year} today={today} />
       </FadeIn>
     </div>
   );

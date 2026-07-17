@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "@/components/icons";
 import { getCurrentUser } from "@/lib/auth-server";
 import { getPatternContent, patternNeighbors, TIER_BLURB } from "@/lib/patterns";
 import { getMastery } from "@/lib/mastery";
@@ -48,7 +48,7 @@ export default async function PatternPage({ params }: { params: Promise<{ key: s
           <Badge variant="solid">{pattern.tier}</Badge>
           <Badge variant="outline">{pattern.kind}</Badge>
         </div>
-        <h1 className="font-mono text-3xl tracking-tight text-white">{pattern.label}</h1>
+        <h1 className="text-3xl font-semibold leading-tight tracking-tight text-white">{pattern.label}</h1>
         <p className="max-w-2xl text-white/60">{TIER_BLURB[pattern.tier]}</p>
       </FadeIn>
 
