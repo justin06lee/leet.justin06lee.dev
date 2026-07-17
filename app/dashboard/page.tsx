@@ -70,7 +70,12 @@ export default async function Dashboard() {
       ) : null}
 
       <FadeIn delay={0.3} className="mt-12 flex flex-col gap-4">
-        <h2 className="text-2xl font-semibold tracking-tight text-white">coverage by tier</h2>
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <h2 className="text-2xl font-semibold tracking-tight text-white">coverage by tier</h2>
+          <Button variant="link" size="sm" iconRight={ArrowRight} href="/mastery">
+            full breakdown
+          </Button>
+        </div>
         <div className="grid gap-4 sm:grid-cols-3">
           {TIERS.map((tier) => {
             const t = mastery.tiers[tier];
