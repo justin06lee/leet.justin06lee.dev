@@ -40,6 +40,11 @@ export interface ProblemTest {
 
 const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];
 const JUDGING_MODES: JudgingMode[] = ["function", "stdio"];
+const TEST_KINDS: ProblemTest["kind"][] = ["visible", "hidden"];
+
+export function isTestKind(value: unknown): value is ProblemTest["kind"] {
+  return typeof value === "string" && (TEST_KINDS as string[]).includes(value);
+}
 
 export function mapProblemRow(row: Row): Problem {
   let params: ProblemParam[] = [];
@@ -104,6 +109,12 @@ function validateFunctionName(mode: JudgingMode, functionName: string | null | u
   if (mode === "function" && (typeof functionName !== "string" || functionName.length === 0)) {
     throw new Error("function mode requires function_name");
   }
+}
+
+// True for errors thrown by the validators above — API routes map these to
+// 400 (bad input) instead of letting them surface as 500s.
+export function isProblemValidationError(e: unknown): e is Error {
+  return e instanceof Error && /^(invalid |function mode requires )/.test(e.message);
 }
 
 async function slugExists(slug: string, excludeId?: string): Promise<boolean> {
@@ -339,6 +350,9 @@ export async function replaceTests(
   tests: Omit<ProblemTest, "id" | "problemId">[],
 ): Promise<void> {
   await initDb();
+  for (const test of tests) {
+    if (!isTestKind(test.kind)) throw new Error(`invalid test kind: ${test.kind}`);
+  }
   const statements = [
     { sql: "DELETE FROM problem_tests WHERE problem_id = ?", args: [problemId] as (string | number)[] },
     ...tests.map((test, index) => ({

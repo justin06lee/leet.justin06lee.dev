@@ -135,6 +135,19 @@ describe("replaceTests / getTests", () => {
     expect(all.map((t) => t.input)).toEqual(["a", "b", "c"]);
     expect(all.map((t) => t.ordinal)).toEqual([0, 1, 2]);
   });
+
+  it("rejects an invalid test kind without touching the existing rows", async () => {
+    await initDb();
+    const prob = await createProblem({ title: "Kind Guard", functionName: "f" });
+    await replaceTests(prob.id, [{ ordinal: 0, kind: "visible", input: "a", expected: "1" }]);
+    await expect(
+      replaceTests(prob.id, [
+        { ordinal: 0, kind: "secret" as "visible", input: "b", expected: "2" },
+      ]),
+    ).rejects.toThrow(/invalid test kind/);
+    // The delete-then-reinsert batch never ran, so the old tests survive.
+    expect((await getTests(prob.id, { includeHidden: true })).map((t) => t.input)).toEqual(["a"]);
+  });
 });
 
 describe("deleteProblem", () => {
