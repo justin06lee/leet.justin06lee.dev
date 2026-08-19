@@ -113,6 +113,13 @@ export async function updateArticle(
   return mapArticleRow(res.rows[0]);
 }
 
+export async function getArticleById(id: string): Promise<Article | null> {
+  await initDb();
+  const res = await db.execute({ sql: "SELECT * FROM articles WHERE id = ?", args: [id] });
+  if (res.rows.length === 0) return null;
+  return mapArticleRow(res.rows[0]);
+}
+
 export async function getArticleBySlug(
   slug: string,
   opts?: { includeUnpublished?: boolean },

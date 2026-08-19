@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { initDb, db } from "./db";
-import { upsertGitHubUser, getUserById } from "./users";
+import { upsertGitHubUser, getUserById, getUserByLogin } from "./users";
 
 const profile = {
   id: 4242,
@@ -40,5 +40,17 @@ describe("getUserById", () => {
   it("returns null for an unknown id", async () => {
     await initDb();
     expect(await getUserById("nope")).toBeNull();
+  });
+});
+
+describe("getUserByLogin", () => {
+  it("finds a user case-insensitively, matching resolveTier's comparison", async () => {
+    await initDb();
+    const user = await upsertGitHubUser(profile);
+    expect((await getUserByLogin("OctoCat"))?.id).toBe(user.id);
+  });
+  it("returns null for an unknown login", async () => {
+    await initDb();
+    expect(await getUserByLogin("ghost")).toBeNull();
   });
 });

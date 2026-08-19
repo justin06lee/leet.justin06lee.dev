@@ -66,3 +66,14 @@ export async function getUserById(id: string): Promise<User | null> {
   if (res.rows.length === 0) return null;
   return mapUserRow(res.rows[0]);
 }
+
+// Case-insensitive to match resolveTier's owner comparison.
+export async function getUserByLogin(login: string): Promise<User | null> {
+  await initDb();
+  const res = await db.execute({
+    sql: "SELECT * FROM users WHERE lower(github_login) = lower(?) LIMIT 1",
+    args: [login],
+  });
+  if (res.rows.length === 0) return null;
+  return mapUserRow(res.rows[0]);
+}
