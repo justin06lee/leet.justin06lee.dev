@@ -3,6 +3,7 @@ import { initDb } from "./db";
 import {
   createArticle,
   updateArticle,
+  getArticleById,
   getArticleBySlug,
   listArticles,
   deleteArticle,
@@ -85,6 +86,15 @@ describe("listArticles", () => {
     expect(slugs).toContain(one.slug);
     expect(slugs).toContain(two.slug);
     expect(list.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe("getArticleById", () => {
+  it("returns the article regardless of published state, null when unknown", async () => {
+    await initDb();
+    const created = await createArticle({ title: "By Id", body: "b" });
+    expect((await getArticleById(created.id))?.title).toBe("By Id");
+    expect(await getArticleById("nope")).toBeNull();
   });
 });
 
